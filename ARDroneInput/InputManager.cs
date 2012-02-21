@@ -118,6 +118,7 @@ namespace ARDrone.Input
             newDevices.AddRange(JoystickInput.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(WiiMoteInput.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(SpeechInput.GetNewInputDevices(windowHandle, inputDevices));
+            newDevices.AddRange(CAVEInput.GetNewInputDevices(windowHandle, inputDevices));
 
             foreach (GenericInput inputDevice in newDevices)
             {

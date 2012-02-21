@@ -73,7 +73,7 @@ namespace ARDroneUI_Detection_Forms
         {
             DroneConfig droneConfig = new DroneConfig();
             droneConfig.FirmwareVersion = SupportedFirmwareVersion.Firmware_164_Or_Above;
-            droneConfig.DefaultCameraMode = DroneCameraMode.BottomCamera;
+            droneConfig.DefaultCameraMode = DroneCameraMode.FrontCamera;
 
             droneControl = new DroneControl(droneConfig);
             droneControl.Error += droneControl_Error_Async;
@@ -83,7 +83,7 @@ namespace ARDroneUI_Detection_Forms
         public void InitDetection()
         {
             signDetector = new SignDetector();
-            courseAdvisor = new CourseAdvisor(droneControl.BottomCameraPictureSize, droneControl.BottomCameraFieldOfViewDegrees);
+            courseAdvisor = new CourseAdvisor(droneControl.FrontCameraPictureSize, droneControl.FrontCameraFieldOfViewDegrees);
             course = new CourseList();
 
             InitDetectionSliders();
@@ -255,7 +255,7 @@ namespace ARDroneUI_Detection_Forms
             {
                 DroneData data = droneControl.NavigationData;
 
-                labelCamera.Text = "Bottom camera";
+                labelCamera.Text = "Front camera";
                 labelStatusPitch.Text = String.Format("{0:+0.000;-0.000;+0.000}", data.Theta);
                 labelStatusRoll.Text = String.Format("{0:+0.000;-0.000;+0.000}", data.Phi);
                 labelStatusBattery.Text = data.BatteryLevel + "%";
