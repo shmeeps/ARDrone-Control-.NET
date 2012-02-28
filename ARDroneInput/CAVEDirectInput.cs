@@ -30,7 +30,7 @@ namespace ARDrone.Input
 
         public enum Commands
         {
-            Hover = 0,
+            None = 0,
             Forward = 1,
             Backward = 2,
             Left = 3,
@@ -42,7 +42,10 @@ namespace ARDrone.Input
             Land = 9,
             Emergency = 10,
             SLeft = 11,
-            SRight = 12
+            SRight = 12,
+            Camera = 13,
+            Special = 14,
+            Hover = 15
         }
 
         // SOCKET STUFF
@@ -91,8 +94,8 @@ namespace ARDrone.Input
             //mapping.SetAxisMappings("A-D", "W-S", "LeftArrow-Right", "DownArrow-Up");
             //mapping.SetButtonMappings("C", "Return", "Return", "NumPad0", "Space", "F", "X");
 
-            mapping.SetAxisMappings("Forward-Backward", "SLeft-SRight", "Left-Right", "Up-Down");
-            mapping.SetButtonMappings("", Commands.TakeOff, Commands.Land, Commands.Hover, Commands.Emergency, Commands.FlatTrim, "");
+            mapping.SetAxisMappings("SLeft-SRight", "Forward-Backward", "Left-Right", "Down-Up");
+            mapping.SetButtonMappings(Commands.Camera, Commands.TakeOff, Commands.Land, Commands.Hover, Commands.Emergency, Commands.FlatTrim, Commands.Special);
 
             return mapping;
         }
@@ -120,7 +123,8 @@ namespace ARDrone.Input
         {
             List<String> buttonsPressed = new List<String>();
 
-            buttonsPressed.Add(CurrentCommand.ToString());
+            if(CurrentCommand != Commands.None)
+                buttonsPressed.Add(CurrentCommand.ToString());
 
             return buttonsPressed;
         }
@@ -318,6 +322,11 @@ namespace ARDrone.Input
             {
                 System.Diagnostics.Debugger.Log(0, "1", "\nOnDataReceived: Something really bad happened!!!\n");
             }
+        }
+
+        public override void Dispose()
+        {
+
         }
     }
 }
