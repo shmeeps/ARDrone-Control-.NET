@@ -41,11 +41,24 @@ namespace ARDrone.Input
             TakeOff = 8,
             Land = 9,
             Emergency = 10,
-            SLeft = 11,
-            SRight = 12,
+            StrafeL = 11,
+            StrafeR = 12,
             Camera = 13,
             Special = 14,
-            Hover = 15
+            Hover = 15,
+            Calibrate = 16,
+            CalibrationComplete = 17,
+            ControlToPatient = 18,
+            ControlToSupervisor = 19,
+            CheckInToggle = 20,
+            SelectPatient = 21,
+            SavePatient = 22,
+            ViewLogs = 23,
+            ViewRecordings = 24,
+            StartSimulation = 25,
+            EndSimulation = 26,
+            PauseSimulation = 27,
+            Exit = 28
         }
 
         // SOCKET STUFF
@@ -94,7 +107,7 @@ namespace ARDrone.Input
             //mapping.SetAxisMappings("A-D", "W-S", "LeftArrow-Right", "DownArrow-Up");
             //mapping.SetButtonMappings("C", "Return", "Return", "NumPad0", "Space", "F", "X");
 
-            mapping.SetAxisMappings("SLeft-SRight", "Forward-Backward", "Left-Right", "Down-Up");
+            mapping.SetAxisMappings("StrafeL-StrafeR", "Forward-Backward", "Left-Right", "Down-Up");
             mapping.SetButtonMappings(Commands.Camera, Commands.TakeOff, Commands.Land, Commands.Hover, Commands.Emergency, Commands.FlatTrim, Commands.Special);
 
             return mapping;
