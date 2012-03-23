@@ -200,6 +200,17 @@ namespace ARDroneUI_Detection_Forms
             UpdateUIAsync("Leaving hover mode");
         }
 
+        private void SendOutisdeOff()
+        {
+            Command sendOutsideOff = new SetConfigurationCommand("CONTROL:outdoor", "FALSE");
+
+            if (!droneControl.IsCommandPossible(sendOutsideOff))
+                return;
+
+            droneControl.SendCommand(sendOutsideOff);
+            UpdateUIAsync("Outside mode off");
+        }
+
         private void Navigate(float roll, float pitch, float yaw, float gaz)
         {
             FlightMoveCommand flightMoveCommand = new FlightMoveCommand(roll, pitch, yaw, gaz);

@@ -235,6 +235,41 @@ namespace ARDrone.UI
             UpdateUIAsync("Changing camera");
         }
 
+        private void SendOutisdeOff()
+        {
+            Command sendOutsideOff = new SetConfigurationCommand("control:outdoor", "FALSE");
+
+            if (!droneControl.IsCommandPossible(sendOutsideOff))
+                return;
+
+            droneControl.SendCommand(sendOutsideOff);
+            UpdateUIAsync("Outside mode off");
+
+            Command video = new SetConfigurationCommand("video:camif_fps", "60");   // Read-only? pg 81
+
+            if (!droneControl.IsCommandPossible(video))
+                return;
+
+            droneControl.SendCommand(sendOutsideOff);
+            UpdateUIAsync("Video FPS: 60");
+
+            Command shellcmd = new SetConfigurationCommand("control:flight_without_shell", "FALSE");
+
+            if (!droneControl.IsCommandPossible(shellcmd))
+                return;
+
+            droneControl.SendCommand(sendOutsideOff);
+            UpdateUIAsync("Outdoor Hull Enabled");
+
+            Command altcmd = new SetConfigurationCommand("control:altitude_max", "5000");
+
+            if (!droneControl.IsCommandPossible(altcmd))
+                return;
+
+            droneControl.SendCommand(sendOutsideOff);
+            UpdateUIAsync("Max Altitude: 5m");
+        }
+
         private void Takeoff()
         {
             Command takeOffCommand = new FlightModeCommand(DroneFlightMode.TakeOff);
@@ -946,6 +981,11 @@ namespace ARDrone.UI
         private void timerVideoUpdate_Tick(object sender, EventArgs e)
         {
             SetNewVideoImage();
+        }
+
+        private void buttonSendOutsideOff_Click(object sender, RoutedEventArgs e)
+        {
+            SendOutisdeOff();
         }
     }
 }
