@@ -17,6 +17,7 @@ using Microsoft.DirectX.DirectInput;
 using ARDrone.Input.InputMappings;
 using System.Net.Sockets;
 using System.Net;
+using System.Collections.ObjectModel;
 
 namespace ARDrone.Input
 {
@@ -71,6 +72,22 @@ namespace ARDrone.Input
 
         // Connected flag
         public bool connected = false;
+
+        // See if the CAVE is calibrated
+        public bool CAVECalibrated = false;
+
+        // Calibration data
+        public enum Gestures
+        {
+            Up = 0,
+            Down = 1,
+            Left = 2,
+            Right = 3,
+            Forward = 4,
+            Back = 5
+        }
+
+        public Gesture[] CalibrationData = new Gesture[6];
 
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
@@ -136,8 +153,12 @@ namespace ARDrone.Input
         {
             List<String> buttonsPressed = new List<String>();
 
-            if(CurrentCommand != Commands.None)
-                buttonsPressed.Add(CurrentCommand.ToString());
+            if (CurrentCommand == Commands.CalibrationComplete)
+                CAVECalibrated = true;
+
+            else if (CurrentCommand != Commands.None)
+                if(CAVECalibrated)
+                    buttonsPressed.Add(CurrentCommand.ToString());
 
             return buttonsPressed;
         }
@@ -304,6 +325,8 @@ namespace ARDrone.Input
                 catch (FormatException e)
                 {
                     CurrentCommand = Commands.Hover;
+
+                    // TODO: Try to interpret CAVE Calibration data?
                 }
                 catch (OverflowException e)
                 {
@@ -341,5 +364,33 @@ namespace ARDrone.Input
         {
 
         }
+    }
+
+    class Vec3
+    {
+        public double X;
+        public double Y;
+        public double Z;
+
+        public Vec3(double x, double y, double z)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
+
+        public Vec3(Vec3 v)
+        {
+            this.X = v.X;
+            this.Y = v.Y;
+            this.Z = v.Z;
+        }
+    }
+
+    class Gesture
+    {
+        public String GestureName;
+        public Vec3 LeftHand;
+        public Vec3 RightHand;
     }
 }

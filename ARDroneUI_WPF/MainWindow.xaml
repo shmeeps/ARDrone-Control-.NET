@@ -123,6 +123,7 @@
                     <Button Name="buttonGeneralSettings" Content="General settings" Margin="5,2,5,2" Click="buttonGeneralSettings_Click" />
                     <Button Name="buttonShowConfig" Content="Show Drone config" Margin="5,2,5,2" Click="buttonShowConfig_Click" />
                     <Button Name="buttonSendOutsideOff" Content="Turn Outside Mode Off" Margin="5,2,5,2" Click="buttonSendOutsideOff_Click"/>
+                    <Button Name="buttonStartClaibration" Content="Calibrate" Margin="5,2,5,2" Click="buttonStartCalibration_Click" />
                 </StackPanel>
                 
                 <StackPanel Grid.Column="1">

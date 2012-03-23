@@ -987,5 +987,10 @@ namespace ARDrone.UI
         {
             SendOutisdeOff();
         }
+
+        private void buttonStartCalibration_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
