@@ -58,7 +58,6 @@ namespace ARDrone.UI
         private DroneConfig currentDroneConfig; 
         private HudConfig currentHudConfig; 
 
-
         int frameCountSinceLastCapture = 0;
         DateTime lastFrameRateCaptureTime;
         int averageFrameRate = 0;
@@ -268,6 +267,11 @@ namespace ARDrone.UI
 
             droneControl.SendCommand(sendOutsideOff);
             UpdateUIAsync("Max Altitude: 5m");
+        }
+
+        private void StartCalibration()
+        {
+            Input.InputManager.CAVEInput.sendCommand(ARDrone.Input.CAVEDirectInput.Commands.Calibrate);
         }
 
         private void Takeoff()
@@ -990,7 +994,7 @@ namespace ARDrone.UI
 
         private void buttonStartCalibration_Click(object sender, RoutedEventArgs e)
         {
-
+            StartCalibration();
         }
     }
 }

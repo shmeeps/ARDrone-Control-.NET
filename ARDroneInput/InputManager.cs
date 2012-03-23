@@ -25,6 +25,7 @@ namespace ARDrone.Input
     {
         public enum InputMode { RawInput, ControlInput, NoInput };
         public const String AllDevices = "ALL";
+        public static CAVEDirectInput CAVEInput = null;
 
         private IntPtr windowHandle;
         private List<GenericInput> inputDevices = null;
@@ -142,6 +143,9 @@ namespace ARDrone.Input
                 inputDevices.Add(input);
                 return;
             }
+
+            if (input.GetType() == typeof(CAVEDirectInput))
+                InputManager.CAVEInput = (CAVEDirectInput)input;
 
             for (int i = 0; i < inputDevices.Count; i++)
             {

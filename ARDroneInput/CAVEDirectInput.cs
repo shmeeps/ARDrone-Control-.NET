@@ -21,7 +21,7 @@ using System.Collections.ObjectModel;
 
 namespace ARDrone.Input
 {
-    class CAVEDirectInput : DirectInputInput
+    public class CAVEDirectInput : DirectInputInput
     {
         public enum Axis
         {
@@ -243,7 +243,8 @@ namespace ARDrone.Input
                 // Display this client connection as a status message on the GUI	
                 //String str = String.Format("Client # {0} connected", m_clientCount);
                 //textBoxMsg.Text = str;
-                // TODO: Need any client connect notification?
+                // TODO: Need any client connect notification?0
+                //MainWindow.UpdateUIAsync("");
 
                 // Since the main Socket is now free, it can go back and wait for
                 // other clients who are attempting to connect
@@ -360,6 +361,24 @@ namespace ARDrone.Input
             }
         }
 
+        // Sends a command
+        public void sendCommand(Commands cmd)
+        {
+            try
+            {
+                byte[] byData = System.Text.Encoding.ASCII.GetBytes(((int)cmd).ToString());
+                if (m_workerSocket != null)
+                {
+                    foreach(Socket s in m_workerSocket)
+                        s.Send(byData);
+                }
+            }
+            catch (SocketException se)
+            {
+                System.Diagnostics.Debugger.Log(0, "1", "\nOnDataReceived: Something really bad happened!!!\n");
+            }
+        }
+
         public override void Dispose()
         {
 
@@ -392,5 +411,12 @@ namespace ARDrone.Input
         public String GestureName;
         public Vec3 LeftHand;
         public Vec3 RightHand;
+
+        public Gesture(String s, Vec3 l, Vec3 r)
+        {
+            this.GestureName = s;
+            this.LeftHand = l;
+            this.RightHand = r;
+        }
     }
 }
