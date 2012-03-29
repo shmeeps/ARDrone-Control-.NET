@@ -18,6 +18,7 @@ using ARDrone.Input.InputMappings;
 using System.Net.Sockets;
 using System.Net;
 using System.Collections.ObjectModel;
+using System.Windows.Forms;
 
 namespace ARDrone.Input
 {
@@ -39,16 +40,16 @@ namespace ARDrone.Input
             Up = 5,
             Down = 6,
             FlatTrim = 7,
-            TakeOff = 8,
-            Land = 9,
+            TakeOff = 16,
+            Land = 17,
             Emergency = 10,
             StrafeL = 11,
             StrafeR = 12,
             Camera = 13,
             Special = 14,
             Hover = 15,
-            Calibrate = 16,
-            CalibrationComplete = 17,
+            Calibrate = 8,
+            CalibrationComplete = 9,
             ControlToPatient = 18,
             ControlToSupervisor = 19,
             CheckInToggle = 20,
@@ -337,7 +338,10 @@ namespace ARDrone.Input
                 {
                     if (tempCMD < Int32.MaxValue)
                     {
-                        CurrentCommand = ((Commands)tempCMD);
+                        if(tempCMD == 9)
+                            MessageBox.Show(tempCMD.ToString(), "Derp", MessageBoxButtons.OKCancel);
+                        else
+                            CurrentCommand = ((Commands)tempCMD);
                     }
                     else
                     {
