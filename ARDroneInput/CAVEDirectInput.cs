@@ -362,7 +362,7 @@ namespace ARDrone.Input
         }
 
         // Sends a command
-        public void sendCommand(Commands cmd)
+        public void SendCommand(Commands cmd)
         {
             try
             {
@@ -385,7 +385,7 @@ namespace ARDrone.Input
         }
     }
 
-    class Vec3
+    public class Vec3
     {
         public double X;
         public double Y;
@@ -406,7 +406,7 @@ namespace ARDrone.Input
         }
     }
 
-    class Gesture
+    public class Gesture
     {
         public String GestureName;
         public Vec3 LeftHand;

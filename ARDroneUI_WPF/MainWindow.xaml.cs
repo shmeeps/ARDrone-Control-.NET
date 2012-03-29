@@ -271,7 +271,7 @@ namespace ARDrone.UI
 
         private void StartCalibration()
         {
-            Input.InputManager.CAVEInput.sendCommand(ARDrone.Input.CAVEDirectInput.Commands.Calibrate);
+            Input.InputManager.CAVEInput.SendCommand(ARDrone.Input.CAVEDirectInput.Commands.Calibrate);
         }
 
         private void Takeoff()
