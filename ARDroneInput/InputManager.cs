@@ -131,6 +131,10 @@ namespace ARDrone.Input
         private void AddInputDevice(GenericInput input)
         {
             Type typeToSearchFor;
+
+            if (input.GetType() == typeof(CAVEDirectInput))
+                InputManager.CAVEInput = (CAVEDirectInput)input;
+
             if (input.GetType() == typeof(KeyboardInput))
                 typeToSearchFor = typeof(JoystickInput);
             else if (input.GetType() == typeof(JoystickInput))
@@ -143,9 +147,6 @@ namespace ARDrone.Input
                 inputDevices.Add(input);
                 return;
             }
-
-            if (input.GetType() == typeof(CAVEDirectInput))
-                InputManager.CAVEInput = (CAVEDirectInput)input;
 
             for (int i = 0; i < inputDevices.Count; i++)
             {

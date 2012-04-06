@@ -189,7 +189,7 @@ namespace ARDrone.Input
             get
             {
                 if (connected == false) { return string.Empty; }
-                else { return "SOCKETTEST"; }
+                else { return "CAVE System"; }
             }
         }
 
@@ -198,7 +198,7 @@ namespace ARDrone.Input
             get
             {
                 if (connected == false) { return string.Empty; }
-                else { return "ST"; }
+                else { return "CS"; }
             }
         }
 
