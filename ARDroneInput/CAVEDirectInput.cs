@@ -158,7 +158,7 @@ namespace ARDrone.Input
                 CAVECalibrated = true;
 
             else if (CurrentCommand != Commands.None)
-                if(CAVECalibrated)
+                //if(CAVECalibrated)
                     buttonsPressed.Add(CurrentCommand.ToString());
 
             return buttonsPressed;
@@ -343,7 +343,7 @@ namespace ARDrone.Input
                         if(tempCMD == (int)Commands.CalibrationComplete)
                             MessageBox.Show(tempCMD.ToString(), "Derp", MessageBoxButtons.OKCancel);
                         else
-                            if(CAVECalibrated)
+                            //if(CAVECalibrated)
                                 CurrentCommand = ((Commands)tempCMD);
                     }
                     else
