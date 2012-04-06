@@ -266,7 +266,7 @@ namespace ARDrone.Input
         public class SocketPacket
         {
             public System.Net.Sockets.Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[1];
+            public byte[] dataBuffer = new byte[64];
         }
 
         // Start waiting for data from the client
