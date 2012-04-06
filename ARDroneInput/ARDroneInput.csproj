@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ButtonBasedInput.cs" />
+    <Compile Include="CheckInController.cs" />
     <Compile Include="ConfigurableInput.cs" />
     <Compile Include="CAVEDirectInput.cs" />
     <Compile Include="DirectInputInput.cs" />

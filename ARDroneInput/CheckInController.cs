@@ -1,66 +1,21 @@
-﻿/* ARDrone Control .NET - An application for flying the Parrot AR drone in Windows.
- * Copyright (C) 2010, 2011 Thomas Endres, Stephen Hobley, Julien Vinel
- * 
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
- */
-
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Linq;
 using System.Text;
-using Microsoft.DirectX.DirectInput;
-using ARDrone.Input.InputMappings;
 using System.Net.Sockets;
+using ARDrone.Input.InputMappings;
+using Microsoft.DirectX.DirectInput;
 using System.Net;
-using System.Collections.ObjectModel;
-using System.Windows.Forms;
+using System.Windows;
 
 namespace ARDrone.Input
 {
-    public class CAVEDirectInput : DirectInputInput
+    public class CheckInController : DirectInputInput
     {
         public enum Axis
         {
             // "Normal" axes
             Axis_X, Axis_Y, Axis_Z,
-        }
-
-        public enum Commands
-        {
-            None = 0,
-            Forward = 1,
-            Backward = 2,
-            Left = 3,
-            Right = 4,
-            Up = 5,
-            Down = 6,
-            FlatTrim = 7,
-            TakeOff = 8,
-            Land = 9,
-            Emergency = 10,
-            StrafeL = 11,
-            StrafeR = 12,
-            Camera = 13,
-            Special = 14,
-            Hover = 15,
-            Calibrate = 16,
-            CalibrationComplete = 17,
-            ControlToPatient = 18,
-            ControlToSupervisor = 19,
-            CheckInToggle = 20,
-            SelectPatient = 21,
-            SavePatient = 22,
-            ViewLogs = 23,
-            ViewRecordings = 24,
-            StartSimulation = 25,
-            EndSimulation = 26,
-            PauseSimulation = 27,
-            Exit = 28
         }
 
         // SOCKET STUFF
@@ -74,35 +29,15 @@ namespace ARDrone.Input
         // Connected flag
         public bool connected = false;
 
-        // See if the CAVE is calibrated
-        public bool CAVECalibrated = false;
-
-        // Calibration data
-        public enum Gestures
-        {
-            Up = 0,
-            Down = 1,
-            Left = 2,
-            Right = 3,
-            Forward = 4,
-            Back = 5
-        }
-
-        public Gesture[] CalibrationData = new Gesture[6];
-
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
-        public String m_Port = "8008";
-
-        Commands CurrentCommand = Commands.Hover;
-
-        protected ArrayList keysPressedBefore = new ArrayList();
+        public String m_Port = "8007";
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {
             List<GenericInput> newDevices = new List<GenericInput>();
 
-            CAVEDirectInput input = new CAVEDirectInput();
+            CheckInController input = new CheckInController();
 
             if (input.connected == true)
                 newDevices.Add(input);
@@ -110,15 +45,15 @@ namespace ARDrone.Input
             return newDevices;
         }
 
-        public CAVEDirectInput()
+        public CheckInController()
             : base()
         {
-            InitCAVEInput();
+            InitCheckInController();
 
             DetermineMapping();
         }
 
-        protected override InputMapping GetStandardMapping()
+        protected override InputMappings.InputMapping GetStandardMapping()
         {
             ButtonBasedInputMapping mapping = new ButtonBasedInputMapping(GetValidButtons(), GetValidAxes());
 
@@ -126,23 +61,14 @@ namespace ARDrone.Input
             //mapping.SetButtonMappings("C", "Return", "Return", "NumPad0", "Space", "F", "X");
 
             mapping.SetAxisMappings("StrafeL-StrafeR", "Forward-Backward", "Left-Right", "Down-Up");
-            mapping.SetButtonMappings(Commands.Camera, Commands.TakeOff, Commands.Land, Commands.Hover, Commands.Emergency, Commands.FlatTrim, Commands.Special);
+            mapping.SetButtonMappings(0, 0, 0, 0, 0, 0, 0);
 
             return mapping;
         }
 
         private List<String> GetValidButtons()
         {
-            List<String> validButtons = new List<String>();
-            foreach (Commands key in Enum.GetValues(typeof(Commands)))
-            {
-                if (!validButtons.Contains(key.ToString()))
-                {
-                    validButtons.Add(key.ToString());
-                }
-            }
-
-            return validButtons;
+            return new List<String>();
         }
 
         private List<String> GetValidAxes()
@@ -150,21 +76,12 @@ namespace ARDrone.Input
             return new List<String>();
         }
 
-        public override List<String> GetPressedButtons()
+        public override List<string> GetPressedButtons()
         {
-            List<String> buttonsPressed = new List<String>();
-
-            if (CurrentCommand == Commands.CalibrationComplete)
-                CAVECalibrated = true;
-
-            else if (CurrentCommand != Commands.None)
-                if(CAVECalibrated)
-                    buttonsPressed.Add(CurrentCommand.ToString());
-
-            return buttonsPressed;
+            return new List<String>();
         }
 
-        public override Dictionary<String, float> GetAxisValues()
+        public override Dictionary<string, float> GetAxisValues()
         {
             return new Dictionary<String, float>();
         }
@@ -189,7 +106,7 @@ namespace ARDrone.Input
             get
             {
                 if (connected == false) { return string.Empty; }
-                else { return "CAVE System"; }
+                else { return "Check-in Controller"; }
             }
         }
 
@@ -198,11 +115,11 @@ namespace ARDrone.Input
             get
             {
                 if (connected == false) { return string.Empty; }
-                else { return "CS"; }
+                else { return "CiC"; }
             }
         }
 
-        private void InitCAVEInput()
+        private void InitCheckInController()
         {
             try
             {
@@ -262,13 +179,12 @@ namespace ARDrone.Input
                 System.Diagnostics.Debugger.Log(0, "1", "\n OnClientConnection: Socket could not be created\n");
                 //MessageBox.Show(se.Message);
             }
-
         }
 
         public class SocketPacket
         {
             public System.Net.Sockets.Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[4];
+            public byte[] dataBuffer = new byte[1];
         }
 
         // Start waiting for data from the client
@@ -328,27 +244,29 @@ namespace ARDrone.Input
                 }
                 catch (FormatException e)
                 {
-                    CurrentCommand = Commands.Hover;
+                    //CurrentCommand = Commands.Hover;
 
                     // TODO: Try to interpret CAVE Calibration data?
                 }
                 catch (OverflowException e)
                 {
-                    CurrentCommand = Commands.Hover;
+                    //CurrentCommand = Commands.Hover;
                 }
                 finally
                 {
                     if (tempCMD < Int32.MaxValue)
                     {
-                        if(tempCMD == (int)Commands.CalibrationComplete)
+                        /*
+                        if (tempCMD == (int)Commands.CalibrationComplete)
                             MessageBox.Show(tempCMD.ToString(), "Derp", MessageBoxButtons.OKCancel);
                         else
-                            if(CAVECalibrated)
+                            if (CAVECalibrated)
                                 CurrentCommand = ((Commands)tempCMD);
+                         */
                     }
                     else
                     {
-                        CurrentCommand = Commands.Hover;
+                        //CurrentCommand = Commands.Hover;
                     }
                 }
 
@@ -369,15 +287,15 @@ namespace ARDrone.Input
         }
 
         // Sends a command
-        public void SendCommand(Commands cmd)
+        public void SendCommand(int cmd)
         {
             try
             {
                 byte[] byData = System.Text.Encoding.ASCII.GetBytes(((int)cmd).ToString());
                 if (m_workerSocket != null)
                 {
-                    foreach(Socket s in m_workerSocket)
-                        if(s != null)
+                    foreach (Socket s in m_workerSocket)
+                        if (s != null)
                             s.Send(byData);
                 }
             }
@@ -390,41 +308,6 @@ namespace ARDrone.Input
         public override void Dispose()
         {
 
-        }
-    }
-
-    public class Vec3
-    {
-        public double X;
-        public double Y;
-        public double Z;
-
-        public Vec3(double x, double y, double z)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-        }
-
-        public Vec3(Vec3 v)
-        {
-            this.X = v.X;
-            this.Y = v.Y;
-            this.Z = v.Z;
-        }
-    }
-
-    public class Gesture
-    {
-        public String GestureName;
-        public Vec3 LeftHand;
-        public Vec3 RightHand;
-
-        public Gesture(String s, Vec3 l, Vec3 r)
-        {
-            this.GestureName = s;
-            this.LeftHand = l;
-            this.RightHand = r;
         }
     }
 }

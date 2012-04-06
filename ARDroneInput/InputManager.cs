@@ -26,6 +26,7 @@ namespace ARDrone.Input
         public enum InputMode { RawInput, ControlInput, NoInput };
         public const String AllDevices = "ALL";
         public static CAVEDirectInput CAVEInput = null;
+        public static CheckInController CheckInController = null;
 
         private IntPtr windowHandle;
         private List<GenericInput> inputDevices = null;
@@ -134,6 +135,9 @@ namespace ARDrone.Input
 
             if (input.GetType() == typeof(CAVEDirectInput))
                 InputManager.CAVEInput = (CAVEDirectInput)input;
+
+            if (input.GetType() == typeof(CheckInController))
+                InputManager.CheckInController = (CheckInController)input;
 
             if (input.GetType() == typeof(KeyboardInput))
                 typeToSearchFor = typeof(JoystickInput);
