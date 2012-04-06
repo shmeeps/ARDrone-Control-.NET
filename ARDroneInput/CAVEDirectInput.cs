@@ -40,16 +40,16 @@ namespace ARDrone.Input
             Up = 5,
             Down = 6,
             FlatTrim = 7,
-            TakeOff = 16,
-            Land = 17,
+            TakeOff = 8,
+            Land = 9,
             Emergency = 10,
             StrafeL = 11,
             StrafeR = 12,
             Camera = 13,
             Special = 14,
             Hover = 15,
-            Calibrate = 8,
-            CalibrationComplete = 9,
+            Calibrate = 16,
+            CalibrationComplete = 17,
             ControlToPatient = 18,
             ControlToSupervisor = 19,
             CheckInToggle = 20,
@@ -92,7 +92,7 @@ namespace ARDrone.Input
 
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
-        public String m_Port = "8000";
+        public String m_Port = "8008";
 
         Commands CurrentCommand = Commands.Hover;
 
@@ -250,6 +250,8 @@ namespace ARDrone.Input
                 // Since the main Socket is now free, it can go back and wait for
                 // other clients who are attempting to connect
                 m_mainSocket.BeginAccept(new AsyncCallback(OnClientConnect), null);
+
+                MessageBox.Show("Client Connected");
             }
             catch (ObjectDisposedException)
             {
@@ -266,7 +268,7 @@ namespace ARDrone.Input
         public class SocketPacket
         {
             public System.Net.Sockets.Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[64];
+            public byte[] dataBuffer = new byte[4];
         }
 
         // Start waiting for data from the client
@@ -374,7 +376,8 @@ namespace ARDrone.Input
                 if (m_workerSocket != null)
                 {
                     foreach(Socket s in m_workerSocket)
-                        s.Send(byData);
+                        if(s != null)
+                            s.Send(byData);
                 }
             }
             catch (SocketException se)
