@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
+using ARDrone.Input.Utils;
 using ARDrone.Input.InputMappings;
 using Microsoft.DirectX.DirectInput;
 using System.Net;
@@ -31,7 +32,7 @@ namespace ARDrone.Input
 
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
-        public String m_Port = "8007";
+        public String m_Port = "18000";
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {
@@ -60,8 +61,8 @@ namespace ARDrone.Input
             //mapping.SetAxisMappings("A-D", "W-S", "LeftArrow-Right", "DownArrow-Up");
             //mapping.SetButtonMappings("C", "Return", "Return", "NumPad0", "Space", "F", "X");
 
-            mapping.SetAxisMappings("StrafeL-StrafeR", "Forward-Backward", "Left-Right", "Down-Up");
-            mapping.SetButtonMappings(0, 0, 0, 0, 0, 0, 0);
+            //mapping.SetAxisMappings("StrafeL-StrafeR", "Forward-Backward", "Left-Right", "Down-Up");
+            //mapping.SetButtonMappings(0, 0, 0, 0, 0, 0, 0);
 
             return mapping;
         }
@@ -84,6 +85,45 @@ namespace ARDrone.Input
         public override Dictionary<string, float> GetAxisValues()
         {
             return new Dictionary<String, float>();
+        }
+
+        public override InputState GetCurrentControlInput()
+        {
+            List<String> buttonsPressed = GetPressedButtons();
+            Dictionary<String, float> axisValues = GetAxisValues();
+
+            //if (buttonsPressed.Contains("")) { buttonsPressed.Remove(""); }
+            //if (axisValues.ContainsKey("")) { axisValues.Remove(""); }
+
+            float roll = 0;
+            float pitch = 0;
+            float yaw = 0;
+            float gaz = 0;
+
+            bool cameraSwap = false;
+            bool takeOff = false;
+            bool land = false;
+            bool hover = false;
+            bool emergency = false;
+
+            bool flatTrim = false;
+
+            bool specialAction = false;
+
+            // TODO test
+            //SetButtonsPressedBefore(buttonsPressed);
+
+            if (roll != lastInputState.Roll || pitch != lastInputState.Pitch || yaw != lastInputState.Yaw || gaz != lastInputState.Gaz || cameraSwap != lastInputState.CameraSwap || takeOff != lastInputState.TakeOff ||
+                land != lastInputState.Land || hover != lastInputState.Hover || emergency != lastInputState.Emergency || flatTrim != lastInputState.FlatTrim)
+            {
+                InputState newInputState = new InputState(roll, pitch, yaw, gaz, cameraSwap, takeOff, land, hover, emergency, flatTrim, specialAction);
+                lastInputState = newInputState;
+                return newInputState;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override bool IsDevicePresent
