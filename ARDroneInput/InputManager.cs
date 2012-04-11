@@ -121,7 +121,7 @@ namespace ARDrone.Input
             //newDevices.AddRange(WiiMoteInput.GetNewInputDevices(windowHandle, inputDevices));
             //newDevices.AddRange(SpeechInput.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(CAVEDirectInput.GetNewInputDevices(windowHandle, inputDevices));
-            //newDevices.AddRange(CheckInController.GetNewInputDevices(windowHandle, inputDevices));
+            newDevices.AddRange(CheckInController.GetNewInputDevices(windowHandle, inputDevices));
 
             foreach (GenericInput inputDevice in newDevices)
             {
@@ -198,6 +198,8 @@ namespace ARDrone.Input
 
         private void UpdateAllInput(int iterationCount)
         {
+            // TODO: Check for check-ins
+
             if (currentInputMode != desiredInputMode)
                 SwitchInputMode();
 

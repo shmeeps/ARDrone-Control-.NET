@@ -173,14 +173,8 @@ namespace ARDrone.Input
         {
             get
             {
-                try
-                {
-                    return true;
-                }
-                catch (InputLostException)
-                {
-                    return false;
-                }
+                // TODO: Make sure socket is still open
+                return true;
             }
         }
 
@@ -211,7 +205,7 @@ namespace ARDrone.Input
                 m_mainSocket = new Socket(AddressFamily.InterNetwork,
                                           SocketType.Stream,
                                           ProtocolType.Tcp);
-                IPEndPoint ipLocal = new IPEndPoint(IPAddress.Any, port);
+                IPEndPoint ipLocal = new IPEndPoint(IPAddress.Parse(m_IPAddress), port);
                 // Bind to local IP Address...
                 m_mainSocket.Bind(ipLocal);
                 // Start listening...
