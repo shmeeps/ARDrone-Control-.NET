@@ -601,10 +601,11 @@ namespace ARDrone.UI
                 FlatTrim();
             }
 
-            float roll = inputState.Roll / 1.0f;
-            float pitch = inputState.Pitch / 1.0f;
-            float yaw = inputState.Yaw / 2.0f;
-            float gaz = inputState.Gaz / 2.0f;
+            // TODO: Adjust as needed
+            float roll = inputState.Roll / 1.0f;    // Strafe Left / Strafe Right
+            float pitch = inputState.Pitch / 4.0f;  // Forward / Back
+            float yaw = inputState.Yaw / 2.0f;      // Left / Right
+            float gaz = inputState.Gaz / 2.0f;      // Up / Down
 
             Navigate(roll, pitch, yaw, gaz);
         }
