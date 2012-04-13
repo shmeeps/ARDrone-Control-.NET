@@ -245,7 +245,7 @@ namespace ARDrone.Input
                 // other clients who are attempting to connect
                 m_mainSocket.BeginAccept(new AsyncCallback(OnClientConnect), null);
 
-                MessageBox.Show("Client Connected");
+                MessageBox.Show("CAVE Controller Connected");
             }
             catch (ObjectDisposedException)
             {

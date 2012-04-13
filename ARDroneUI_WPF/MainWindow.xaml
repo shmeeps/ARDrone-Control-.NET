@@ -136,6 +136,8 @@
                     <WindowsFormsHost Height="173" Margin="5,10,0,0">
                         <av:AltimeterInstrumentControl x:Name="altimeterControl" Width="150" Height="173" />
                     </WindowsFormsHost>
+                    <Button Content="Start Check-in Timer" Name="startCheckIn" Click="startCheckIn_Click" />
+                    <Button Content="Stop Check-in Timer" Name="stopCheckIn" Click="stopCheckIn_Click" />
                 </StackPanel>
             </Grid>
             <DockPanel DockPanel.Dock="Top" LastChildFill="True" Margin="5">

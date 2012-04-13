@@ -29,6 +29,9 @@ namespace ARDrone.Input
         private Socket[] m_workerSocket = new Socket[10];
         private int m_clientCount = 0;
 
+        // Boolean check to see if check in events should be processed
+        public bool processCheckInEvents = false;
+
         // Stopwatch
         public Stopwatch Stopwatch = new Stopwatch();
 
@@ -39,7 +42,8 @@ namespace ARDrone.Input
         public String m_IPAddress = "127.0.0.1";
         public String m_Port = "8007";
 
-        public ArrayList<CheckInEvent> ActiveCheckIns = new ArrayList<CheckInEvent>();
+        //public ArrayList<CheckInEvent> ActiveCheckIns = new ArrayList<CheckInEvent>();
+        public Queue<CheckInEvent> ActiveCheckIns = new Queue<CheckInEvent>();
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {
@@ -209,7 +213,7 @@ namespace ARDrone.Input
                 // other clients who are attempting to connect
                 m_mainSocket.BeginAccept(new AsyncCallback(OnClientConnect), null);
 
-                MessageBox.Show("Client Connected");
+                MessageBox.Show("Check-in Listener Connected");
             }
             catch (ObjectDisposedException)
             {
@@ -297,7 +301,8 @@ namespace ARDrone.Input
                 {
                     if (tempCheckIn > 0 && tempCheckIn <= 4)
                     {
-                        this.ActiveCheckIns.Add(tempCheckIn);
+                        if(processCheckInEvents)
+                            this.ActiveCheckIns.Enqueue(new CheckInEvent(tempCheckIn, this.Stopwatch.Elapsed));
                     }
                     else
                     {
@@ -340,6 +345,7 @@ namespace ARDrone.Input
         public override void Dispose()
         {
             Stopwatch.Stop();
+            Stopwatch.Reset();
         }
     }
 

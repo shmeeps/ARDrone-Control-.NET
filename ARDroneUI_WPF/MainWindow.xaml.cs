@@ -43,6 +43,7 @@ namespace ARDrone.UI
         private DispatcherTimer timerStatusUpdate;
         private DispatcherTimer timerVideoUpdate;
         private DispatcherTimer timerHudStatusUpdate;
+        private DispatcherTimer timerCheckInUpdate;
 
         private VideoRecorder videoRecorder;
         private SnapshotRecorder snapshotRecorder;
@@ -143,6 +144,10 @@ namespace ARDrone.UI
             timerVideoUpdate = new DispatcherTimer();
             timerVideoUpdate.Interval = new TimeSpan(0, 0, 0, 0, 50);
             timerVideoUpdate.Tick += new EventHandler(timerVideoUpdate_Tick);
+
+            timerCheckInUpdate = new DispatcherTimer();
+            timerCheckInUpdate.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            timerCheckInUpdate.Tick += new EventHandler(timerCheckInUpdate_Tick);
         }
 
         private void InitializeInputManager()
@@ -689,6 +694,25 @@ namespace ARDrone.UI
             UpdateInteractiveElements();
         }
 
+        private void UpdateCheckInSystem()
+        {
+            if(Input.InputManager.CheckInController.processCheckInEvents &&
+                (Input.InputManager.CheckInController.ActiveCheckIns.Count > 0))
+            {
+                // Make a copy (in case of any changes)
+                Queue<CheckInEvent> tempQueue = new Queue<CheckInEvent>(Input.InputManager.CheckInController.ActiveCheckIns);
+                Input.InputManager.CheckInController.ActiveCheckIns.Clear();
+
+                for (int i = 0; i < tempQueue.Count; i++)
+                {
+                    // TODO: Finish Check-in logic for whatever GUI elements need to be updated
+                    CheckInEvent tempEvent = tempQueue.Dequeue();
+
+                    UpdateUIAsync("Check in received, ID: " + tempEvent.CheckInID + " - " + tempEvent.Time.ToString()); 
+                }
+            }
+        }
+
         private String ShowFileDialog(String extension, String filter)
         {
             Microsoft.Win32.SaveFileDialog fileDialog = new Microsoft.Win32.SaveFileDialog();
@@ -988,6 +1012,11 @@ namespace ARDrone.UI
             SetNewVideoImage();
         }
 
+        private void timerCheckInUpdate_Tick(object sender, EventArgs e)
+        {
+            UpdateCheckInSystem();
+        }
+
         private void buttonSendOutsideOff_Click(object sender, RoutedEventArgs e)
         {
             SendOutisdeOff();
@@ -996,6 +1025,33 @@ namespace ARDrone.UI
         private void buttonStartCalibration_Click(object sender, RoutedEventArgs e)
         {
             StartCalibration();
+        }
+
+        public void StartCheckInSystem()
+        {
+            ARDrone.Input.InputManager.CheckInController.processCheckInEvents = true;
+            ARDrone.Input.InputManager.CheckInController.Stopwatch.Start();
+            timerCheckInUpdate.Start();
+            UpdateUIAsync("Check In System Started");
+        }
+
+        public void StopCheckInSystem()
+        {
+            ARDrone.Input.InputManager.CheckInController.processCheckInEvents = false;
+            ARDrone.Input.InputManager.CheckInController.Stopwatch.Stop();
+            ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
+            timerCheckInUpdate.Stop();
+            UpdateUIAsync("Check In System Stopped");
+        }
+
+        private void startCheckIn_Click(object sender, RoutedEventArgs e)
+        {
+            StartCheckInSystem();
+        }
+
+        private void stopCheckIn_Click(object sender, RoutedEventArgs e)
+        {
+            StopCheckInSystem();
         }
     }
 }
