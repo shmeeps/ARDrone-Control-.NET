@@ -158,7 +158,7 @@ namespace ARDrone.Input
                 CAVECalibrated = true;
 
             else if (CurrentCommand != Commands.None)
-                if(CAVECalibrated)
+                //if(CAVECalibrated)
                     buttonsPressed.Add(CurrentCommand.ToString());
 
             return buttonsPressed;
@@ -173,14 +173,8 @@ namespace ARDrone.Input
         {
             get
             {
-                try
-                {
-                    return true;
-                }
-                catch (InputLostException)
-                {
-                    return false;
-                }
+                // TODO: Make sure socket is still open
+                return true;
             }
         }
 
@@ -211,7 +205,7 @@ namespace ARDrone.Input
                 m_mainSocket = new Socket(AddressFamily.InterNetwork,
                                           SocketType.Stream,
                                           ProtocolType.Tcp);
-                IPEndPoint ipLocal = new IPEndPoint(IPAddress.Any, port);
+                IPEndPoint ipLocal = new IPEndPoint(IPAddress.Parse(m_IPAddress), port);
                 // Bind to local IP Address...
                 m_mainSocket.Bind(ipLocal);
                 // Start listening...
@@ -343,7 +337,7 @@ namespace ARDrone.Input
                         if(tempCMD == (int)Commands.CalibrationComplete)
                             MessageBox.Show(tempCMD.ToString(), "Derp", MessageBoxButtons.OKCancel);
                         else
-                            if(CAVECalibrated)
+                            //if(CAVECalibrated)
                                 CurrentCommand = ((Commands)tempCMD);
                     }
                     else

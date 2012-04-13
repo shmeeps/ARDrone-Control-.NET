@@ -156,11 +156,13 @@ namespace ARDrone.Input
 
                 if (buttonsPressed.Contains(firstButton))
                 {
-                    value = -1.0f;
+                    //value = -1.0f;
+                    value = -0.5f;
                 }
                 else if (buttonsPressed.Contains(secondButton))
                 {
-                    value = 1.0f;
+                    //value = 1.0f;
+                    value = 0.5f;
                 }
                 else
                 {
