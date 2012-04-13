@@ -7,6 +7,8 @@ using ARDrone.Input.InputMappings;
 using Microsoft.DirectX.DirectInput;
 using System.Net;
 using System.Windows;
+using System.Diagnostics;
+using System.Collections;
 
 namespace ARDrone.Input
 {
@@ -26,12 +28,17 @@ namespace ARDrone.Input
         private Socket[] m_workerSocket = new Socket[10];
         private int m_clientCount = 0;
 
+        // Stopwatch
+        public Stopwatch Stopwatch = new Stopwatch();
+
         // Connected flag
         public bool connected = false;
 
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
         public String m_Port = "8007";
+
+        public ArrayList<CheckInEvent> ActiveCheckIns = new ArrayList<CheckInEvent>();
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {
@@ -224,7 +231,7 @@ namespace ARDrone.Input
             {
                 SocketPacket socketData = (SocketPacket)asyn.AsyncState;
 
-                int tempCMD = 0;
+                int tempCheckIn = 0;
 
                 int iRx = 0;
                 // Complete the BeginReceive() asynchronous call by EndReceive() method
@@ -240,7 +247,7 @@ namespace ARDrone.Input
 
                 try
                 {
-                    tempCMD = Convert.ToInt32(szData);
+                    tempCheckIn = Convert.ToInt32(szData);
                 }
                 catch (FormatException e)
                 {
@@ -254,24 +261,15 @@ namespace ARDrone.Input
                 }
                 finally
                 {
-                    if (tempCMD < Int32.MaxValue)
+                    if (tempCheckIn > 0 && tempCheckIn <= 4)
                     {
-                        /*
-                        if (tempCMD == (int)Commands.CalibrationComplete)
-                            MessageBox.Show(tempCMD.ToString(), "Derp", MessageBoxButtons.OKCancel);
-                        else
-                            if (CAVECalibrated)
-                                CurrentCommand = ((Commands)tempCMD);
-                         */
+                        this.ActiveCheckIns.Add(tempCheckIn);
                     }
                     else
                     {
                         //CurrentCommand = Commands.Hover;
                     }
                 }
-
-                // TODO
-                //updateStatus();
 
                 // Continue the waiting for data on the Socket
                 WaitForData(socketData.m_currentSocket);
@@ -307,7 +305,19 @@ namespace ARDrone.Input
 
         public override void Dispose()
         {
+            Stopwatch.Stop();
+        }
+    }
 
+    public class CheckInEvent
+    {
+        public int CheckInID = 0;
+        public TimeSpan Time;
+
+        public CheckInEvent(int i, TimeSpan t)
+        {
+            this.CheckInID = i;
+            this.Time = t;
         }
     }
 }
