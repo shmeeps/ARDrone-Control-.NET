@@ -19,6 +19,9 @@ using System.Net.Sockets;
 using System.Net;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Globalization;
 
 namespace ARDrone.Input
 {
@@ -70,6 +73,7 @@ namespace ARDrone.Input
         private Socket m_mainSocket;
         private Socket[] m_workerSocket = new Socket[10];
         private int m_clientCount = 0;
+        static int m_bufferSize = 1024;
 
         // Connected flag
         public bool connected = false;
@@ -87,8 +91,9 @@ namespace ARDrone.Input
             Forward = 4,
             Back = 5
         }
-
-        public Gesture[] CalibrationData = new Gesture[6];
+        
+        // Calibration data
+        public GestureData CalibrationData = null;
 
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
@@ -262,7 +267,7 @@ namespace ARDrone.Input
         public class SocketPacket
         {
             public System.Net.Sockets.Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[4];
+            public byte[] dataBuffer = new byte[CAVEDirectInput.m_bufferSize];
         }
 
         // Start waiting for data from the client
@@ -318,7 +323,17 @@ namespace ARDrone.Input
 
                 try
                 {
-                    tempCMD = Convert.ToInt32(szData);
+                    if (szData.Contains("{"))
+                    {
+                        // Save calibration data
+                        JsonSerializer serializer = new JsonSerializer();
+                        this.CalibrationData = new GestureData(JObject.Parse(szData));
+
+                        // Send a hover command
+                        tempCMD = 0;
+                    }
+                    else
+                        tempCMD = Convert.ToInt32(szData);
                 }
                 catch (FormatException e)
                 {
@@ -334,11 +349,11 @@ namespace ARDrone.Input
                 {
                     if (tempCMD < Int32.MaxValue)
                     {
-                        if(tempCMD == (int)Commands.CalibrationComplete)
-                            MessageBox.Show(tempCMD.ToString(), "Derp", MessageBoxButtons.OKCancel);
+                        if (tempCMD == (int)Commands.CalibrationComplete)
+                            CAVECalibrated = true;
                         else
                             //if(CAVECalibrated)
-                                CurrentCommand = ((Commands)tempCMD);
+                            CurrentCommand = ((Commands)tempCMD);
                     }
                     else
                     {
@@ -406,6 +421,75 @@ namespace ARDrone.Input
             this.Y = v.Y;
             this.Z = v.Z;
         }
+    }
+
+    public class GestureData
+    {
+        public Dictionary<String, Gesture> Gestures = new Dictionary<String, Gesture>();
+
+        public GestureData(JObject o)
+        {
+            // Get up gesture
+            Gestures.Add("Up", new Gesture("Up",
+                                     new Vec3((double)o.SelectToken("Up.lsx"),
+                                              (double)o.SelectToken("Up.lsy"),
+                                              (double)o.SelectToken("Up.lsz")),
+                                     new Vec3((double)o.SelectToken("Up.rsx"),
+                                              (double)o.SelectToken("Up.rsy"),
+                                              (double)o.SelectToken("Up.rsz"))));
+
+            // Get down gesture
+            Gestures.Add("Down", new Gesture("Down",
+                                     new Vec3((double)o.SelectToken("Down.lsx"),
+                                              (double)o.SelectToken("Down.lsy"),
+                                              (double)o.SelectToken("Down.lsz")),
+                                     new Vec3((double)o.SelectToken("Down.rsx"),
+                                              (double)o.SelectToken("Down.rsy"),
+                                              (double)o.SelectToken("Down.rsz"))));
+
+            // Get up gesture
+            Gestures.Add("Left", new Gesture("Left",
+                                     new Vec3((double)o.SelectToken("Left.lsx"),
+                                              (double)o.SelectToken("Left.lsy"),
+                                              (double)o.SelectToken("Left.lsz")),
+                                     new Vec3((double)o.SelectToken("Left.rsx"),
+                                              (double)o.SelectToken("Left.rsy"),
+                                              (double)o.SelectToken("Left.rsz"))));
+
+            // Get up gesture
+            Gestures.Add("Right", new Gesture("Right",
+                                     new Vec3((double)o.SelectToken("Right.lsx"),
+                                              (double)o.SelectToken("Right.lsy"),
+                                              (double)o.SelectToken("Right.lsz")),
+                                     new Vec3((double)o.SelectToken("Right.rsx"),
+                                              (double)o.SelectToken("Right.rsy"),
+                                              (double)o.SelectToken("Right.rsz"))));
+
+            // Get up gesture
+            Gestures.Add("Forward", new Gesture("Forward",
+                                     new Vec3((double)o.SelectToken("Forward.lsx"),
+                                              (double)o.SelectToken("Forward.lsy"),
+                                              (double)o.SelectToken("Forward.lsz")),
+                                     new Vec3((double)o.SelectToken("Forward.rsx"),
+                                              (double)o.SelectToken("Forward.rsy"),
+                                              (double)o.SelectToken("Forward.rsz"))));
+
+            // Get up gesture
+            Gestures.Add("Back", new Gesture("Back",
+                                     new Vec3((double)o.SelectToken("Back.lsx"),
+                                              (double)o.SelectToken("Back.lsy"),
+                                              (double)o.SelectToken("Back.lsz")),
+                                     new Vec3((double)o.SelectToken("Back.rsx"),
+                                              (double)o.SelectToken("Back.rsy"),
+                                              (double)o.SelectToken("Back.rsz"))));
+        }
+
+        /*private double stringToFloat(String s)
+        {
+            // CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+
+            return Convert.ToDouble(s, CultureInfo.InvariantCulture);
+        }*/
     }
 
     public class Gesture

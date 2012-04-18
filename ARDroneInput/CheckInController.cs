@@ -44,6 +44,7 @@ namespace ARDrone.Input
 
         //public ArrayList<CheckInEvent> ActiveCheckIns = new ArrayList<CheckInEvent>();
         public Queue<CheckInEvent> ActiveCheckIns = new Queue<CheckInEvent>();
+        public HashSet<int> CompletedCheckIns = new HashSet<int>();
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {

@@ -703,12 +703,31 @@ namespace ARDrone.UI
                 Queue<CheckInEvent> tempQueue = new Queue<CheckInEvent>(Input.InputManager.CheckInController.ActiveCheckIns);
                 Input.InputManager.CheckInController.ActiveCheckIns.Clear();
 
+                // Cycle through each active check-in
                 for (int i = 0; i < tempQueue.Count; i++)
                 {
-                    // TODO: Finish Check-in logic for whatever GUI elements need to be updated
+                    // Pull off the check-in event
                     CheckInEvent tempEvent = tempQueue.Dequeue();
 
-                    UpdateUIAsync("Check in received, ID: " + tempEvent.CheckInID + " - " + tempEvent.Time.ToString()); 
+                    // Make sure this check-in hasn't already been completed
+                    if (!Input.InputManager.CheckInController.CompletedCheckIns.Contains(tempEvent.CheckInID))
+                    {
+                        // TODO: Finish Check-in logic for whatever GUI elements need to be updated
+                        Input.InputManager.CheckInController.CompletedCheckIns.Add(tempEvent.CheckInID);
+
+                        // Write to the output saying the check-in was completed 
+                        UpdateUIAsync("Check in received, ID: " + tempEvent.CheckInID + " - " + tempEvent.Time.ToString());
+
+                        // Check to see if they have completed the simulation
+                        if (Input.InputManager.CheckInController.CompletedCheckIns.Count >= 4)
+                        {
+                            // Write to the output saying simulation complete
+                            UpdateUIAsync("Simulation compelted in " + tempEvent.Time.ToString());
+
+                            // Stop the check-in timer
+                            StopCheckInSystem();
+                        }
+                    }
                 }
             }
         }
