@@ -884,12 +884,12 @@ namespace ARDrone.UI
 
         private void inputManager_NewInputDevice(object sender, NewInputDeviceEventArgs e)
         {
-            UpdateUIAsync("New input device: " + e.DeviceName);
+            UpdateUIAsync("New device: " + e.DeviceName);
         }
 
         private void inputManager_InputDeviceLost(object sender, InputDeviceLostEventArgs e)
         {
-            UpdateUIAsync("Lost input device: " + e.DeviceName);
+            UpdateUIAsync("Lost device: " + e.DeviceName);
         }
 
         private void inputManager_NewInputState(object sender, NewInputStateEventArgs e)
