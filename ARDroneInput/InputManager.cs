@@ -27,6 +27,7 @@ namespace ARDrone.Input
         public const String AllDevices = "ALL";
         public static CAVEDirectInput CAVEInput = null;
         public static CheckInController CheckInController = null;
+        public static DatabaseController DatabaseController = null;
 
         private IntPtr windowHandle;
         private List<GenericInput> inputDevices = null;
@@ -47,9 +48,12 @@ namespace ARDrone.Input
         public event RawInputReceivedHandler RawInputReceived;
         public event NewInputStateHandler NewInputState;
 
+        private static InputManager instance = null;
+
         public InputManager(IntPtr windowHandle)
         {
             this.windowHandle = windowHandle;
+            InputManager.instance = this;
 
             inputDevices = new List<GenericInput>();
             lastInputState = new InputState();
@@ -122,6 +126,7 @@ namespace ARDrone.Input
             //newDevices.AddRange(SpeechInput.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(CAVEDirectInput.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(CheckInController.GetNewInputDevices(windowHandle, inputDevices));
+            newDevices.AddRange(DatabaseController.GetNewInputDevices(windowHandle, inputDevices));
 
             foreach (GenericInput inputDevice in newDevices)
             {
@@ -139,6 +144,9 @@ namespace ARDrone.Input
 
             if (input.GetType() == typeof(CheckInController))
                 InputManager.CheckInController = (CheckInController)input;
+
+            if (input.GetType() == typeof(DatabaseController))
+                InputManager.DatabaseController = (DatabaseController)input;
 
             if (input.GetType() == typeof(KeyboardInput))
                 typeToSearchFor = typeof(JoystickInput);
@@ -388,6 +396,11 @@ namespace ARDrone.Input
         public List<GenericInput> InputDevices
         {
             get { return inputDevices; }
+        }
+
+        public static List<GenericInput> GetInputDevices()
+        {
+            return new List<GenericInput>(InputManager.instance.inputDevices);
         }
     }
 }

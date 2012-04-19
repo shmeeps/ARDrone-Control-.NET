@@ -107,6 +107,14 @@ namespace ARDrone.Input
         {
             List<GenericInput> newDevices = new List<GenericInput>();
 
+            List<GenericInput> inputDevices = InputManager.GetInputDevices();
+
+            foreach (GenericInput g in inputDevices)
+            {
+                if (g.DeviceInstanceId == "CAVE")
+                    return newDevices;
+            }
+
             CAVEDirectInput input = new CAVEDirectInput();
 
             if (input.connected == true)
@@ -198,6 +206,14 @@ namespace ARDrone.Input
             {
                 if (connected == false) { return string.Empty; }
                 else { return "CS"; }
+            }
+        }
+
+        public override string DeviceInstanceId
+        {
+            get
+            {
+                return "CAVE";
             }
         }
 

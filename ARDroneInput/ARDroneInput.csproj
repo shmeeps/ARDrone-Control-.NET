@@ -43,6 +43,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.DirectInput.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -65,6 +66,7 @@
     <Compile Include="CheckInController.cs" />
     <Compile Include="ConfigurableInput.cs" />
     <Compile Include="CAVEDirectInput.cs" />
+    <Compile Include="DatabaseController.cs" />
     <Compile Include="DirectInputInput.cs" />
     <Compile Include="InputConfigs\ButtonBasedInputConfig.cs" />
     <Compile Include="InputConfigs\InputConfig.cs" />

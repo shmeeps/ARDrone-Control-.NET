@@ -50,6 +50,14 @@ namespace ARDrone.Input
         {
             List<GenericInput> newDevices = new List<GenericInput>();
 
+            List<GenericInput> inputDevices = InputManager.GetInputDevices();
+
+            foreach (GenericInput g in inputDevices)
+            {
+                if (g.DeviceInstanceId == "CiC")
+                    return newDevices;
+            }
+
             CheckInController input = new CheckInController();
 
             if (input.connected == true)
@@ -122,7 +130,7 @@ namespace ARDrone.Input
 
             bool specialAction = false;
 
-            // TODO test
+            // TODO: test
             //SetButtonsPressedBefore(buttonsPressed);
 
             if (roll != lastInputState.Roll || pitch != lastInputState.Pitch || yaw != lastInputState.Yaw || gaz != lastInputState.Gaz || cameraSwap != lastInputState.CameraSwap || takeOff != lastInputState.TakeOff ||
@@ -162,6 +170,14 @@ namespace ARDrone.Input
             {
                 if (connected == false) { return string.Empty; }
                 else { return "CiC"; }
+            }
+        }
+
+        public override string DeviceInstanceId
+        {
+            get
+            {
+                return "CiC";
             }
         }
 
