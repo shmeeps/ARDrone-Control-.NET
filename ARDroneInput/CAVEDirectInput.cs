@@ -22,6 +22,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Timers;
 
 namespace ARDrone.Input
 {
@@ -73,24 +74,15 @@ namespace ARDrone.Input
         private Socket m_mainSocket;
         private Socket[] m_workerSocket = new Socket[10];
         private int m_clientCount = 0;
-        static int m_bufferSize = 2048;
+        static int m_bufferSize = 1024;
+
+        System.Timers.Timer commandResetTimer;
 
         // Connected flag
         public bool connected = false;
 
         // See if the CAVE is calibrated
         public bool CAVECalibrated = false;
-
-        // Calibration data
-        public enum Gestures
-        {
-            Up = 0,
-            Down = 1,
-            Left = 2,
-            Right = 3,
-            Forward = 4,
-            Back = 5
-        }
         
         // Calibration data
         public GestureData CalibrationData = null;
@@ -99,7 +91,7 @@ namespace ARDrone.Input
         public String m_IPAddress = "127.0.0.1";
         public String m_Port = "8008";
 
-        Commands CurrentCommand = Commands.Hover;
+        Commands CurrentCommand = Commands.None;
 
         protected ArrayList keysPressedBefore = new ArrayList();
 
@@ -171,7 +163,7 @@ namespace ARDrone.Input
                 CAVECalibrated = true;
 
             else if (CurrentCommand != Commands.None)
-                //if(CAVECalibrated)
+                if(CAVECalibrated)
                     buttonsPressed.Add(CurrentCommand.ToString());
 
             return buttonsPressed;
@@ -233,6 +225,11 @@ namespace ARDrone.Input
                 m_mainSocket.Listen(4);
                 // Create the call back for any client connections...
                 m_mainSocket.BeginAccept(new AsyncCallback(OnClientConnect), null);
+
+                // Set up reset timer
+                commandResetTimer = new System.Timers.Timer(250);
+                commandResetTimer.Elapsed += new ElapsedEventHandler(commandResetTimer_Elapsed);
+                commandResetTimer.AutoReset = true;
 
                 this.connected = true;
             }
@@ -341,13 +338,8 @@ namespace ARDrone.Input
                 {
                     if (szData.Contains("{"))
                     {
-                        MessageBox.Show(szData);
-
                         // Save calibration data
                         this.CalibrationData = new GestureData(JObject.Parse(szData));
-
-                        MessageBox.Show("Calibration Data Received");
-                        MessageBox.Show(this.CalibrationData.ToString());
 
                         // Send a hover command
                         tempCMD = 0;
@@ -357,27 +349,35 @@ namespace ARDrone.Input
                 }
                 catch (FormatException e)
                 {
-                    CurrentCommand = Commands.Hover;
+                    CurrentCommand = Commands.None;
 
                     // TODO: Try to interpret CAVE Calibration data?
                 }
                 catch (OverflowException e)
                 {
-                    CurrentCommand = Commands.Hover;
+                    CurrentCommand = Commands.None;
                 }
                 finally
                 {
                     if (tempCMD < Int32.MaxValue)
                     {
                         if (tempCMD == (int)Commands.CalibrationComplete)
+                        {
                             CAVECalibrated = true;
+
+                            MessageBox.Show("CAVE Calibrated!");
+                        }
                         else
-                            //if(CAVECalibrated)
-                            CurrentCommand = ((Commands)tempCMD);
+                            if (CAVECalibrated)
+                            {
+                                CurrentCommand = ((Commands)tempCMD);
+                                
+                                commandResetTimer.Enabled = true;
+                            }
                     }
                     else
                     {
-                        CurrentCommand = Commands.Hover;
+                        CurrentCommand = Commands.None;
                     }
                 }
 
@@ -419,6 +419,12 @@ namespace ARDrone.Input
         public override void Dispose()
         {
 
+        }
+
+        void commandResetTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            this.CurrentCommand = Commands.None;
+            //commandResetTimer.Enabled = false;
         }
     }
 
