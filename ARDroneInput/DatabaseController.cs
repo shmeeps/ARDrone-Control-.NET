@@ -57,6 +57,61 @@ namespace ARDrone.Input
             DetermineMapping();
         }
 
+        public Patient getPatientByID(int id)
+        {
+            try
+            {
+                MySqlDataReader rdr = null;
+
+                string stm = @"SELECT 
+                                    `p`.`ID`, 
+                                    `p`.`FirstName`, 
+                                    `p`.`LastName`, 
+                                    `s`.`Date`, 
+                                    `s`.`CheckInOneTime`, 
+                                    `s`.`CheckInTwoTime`, 
+                                    `s`.`CheckInThreeTime`, 
+                                    `s`.`CheckInFourTime` 
+                                FROM 
+                                    `patients` p, 
+                                    `sessions` s 
+                                WHERE 
+                                    `p`.`ID` = @ID 
+                                AND 
+                                    `p`.`ID` = `s`.`patientID` 
+                                ORDER BY 
+                                    `s`.`Date` DESC 
+                                LIMIT 1";
+
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = this.conn;
+                cmd.CommandText = stm;
+                cmd.Prepare();
+
+                cmd.Parameters.AddWithValue("@ID", id);
+                rdr = cmd.ExecuteReader();
+
+                rdr.Read();
+
+                Session s = new Session(rdr.GetString(3), rdr.GetString(4), rdr.GetString(5), rdr.GetString(6), rdr.GetString(7));
+
+                return new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.ToString());
+
+                return null;
+            }
+        }
+
+        public bool UpdatePatient(Patient p)
+        {
+
+
+            return true;
+        }
+
         protected override InputMappings.InputMapping GetStandardMapping()
         {
             ButtonBasedInputMapping mapping = new ButtonBasedInputMapping(GetValidButtons(), GetValidAxes());
@@ -178,6 +233,40 @@ namespace ARDrone.Input
         {
             if (conn.State == System.Data.ConnectionState.Open)
                 conn.Close();
+        }
+    }
+
+    public class Patient
+    {
+        public int ID;
+        public String FirstName;
+        public String LastName;
+        public Session LastSession;
+
+        public Patient(int id, String firstname, String lastname, Session lastsession)
+        {
+            this.ID = id;
+            this.FirstName = firstname;
+            this.LastName = lastname;
+            this.LastSession = lastsession;
+        }
+    }
+
+    public class Session
+    {
+        public String Date;
+        public String Time1;
+        public String Time2;
+        public String Time3;
+        public String Time4;
+
+        public Session(String date, String time1, String time2, String time3, String time4)
+        {
+            this.Date = date;
+            this.Time1 = time1;
+            this.Time2 = time2;
+            this.Time3 = time3;
+            this.Time4 = time4;
         }
     }
 }

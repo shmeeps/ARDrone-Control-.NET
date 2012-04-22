@@ -91,6 +91,9 @@ namespace ARDrone.Input
         public String m_IPAddress = "127.0.0.1";
         public String m_Port = "8008";
 
+        // Console write delay
+        private int WriteDelay = 0;
+
         Commands CurrentCommand = Commands.None;
 
         protected ArrayList keysPressedBefore = new ArrayList();
@@ -345,7 +348,19 @@ namespace ARDrone.Input
                         tempCMD = 0;
                     }
                     else
+                    {
+                        if (this.WriteDelay <= 0)
+                        {
+                            // Log the inputs
+                            Console.WriteLine(szData);
+
+                            this.WriteDelay = 1000;
+                        }
+                        else
+                            this.WriteDelay--;
+
                         tempCMD = Convert.ToInt32(szData);
+                    }
                 }
                 catch (FormatException e)
                 {
