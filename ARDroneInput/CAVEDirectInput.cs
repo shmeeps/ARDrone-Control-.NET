@@ -349,15 +349,16 @@ namespace ARDrone.Input
                     }
                     else
                     {
-                        if (this.WriteDelay <= 0)
-                        {
+                        //if (this.WriteDelay <= 0)
+                        //{
                             // Log the inputs
-                            Console.WriteLine(szData);
+                            //Console.WriteLine(szData);
+                            System.Diagnostics.Debug.WriteLine(szData + "\n");
 
-                            this.WriteDelay = 1000;
-                        }
-                        else
-                            this.WriteDelay--;
+                        //    this.WriteDelay = 1000;
+                        //}
+                        //else
+                        //    this.WriteDelay--;
 
                         tempCMD = Convert.ToInt32(szData);
                     }
