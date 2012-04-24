@@ -220,13 +220,20 @@ namespace ARDrone.Input
 
         private void InitDatabaseController()
         {
-            conn = new MySqlConnection(cs);
-            conn.Open();
+            try
+            {
+                conn = new MySqlConnection(cs);
+                conn.Open();
 
-            if (conn.State == System.Data.ConnectionState.Open)
-                connected = true;
-            else
+                if (conn.State == System.Data.ConnectionState.Open)
+                    connected = true;
+                else
+                    connected = false;
+            }
+            catch (MySqlException e)
+            {
                 connected = false;
+            }
         }
 
         public override void Dispose()

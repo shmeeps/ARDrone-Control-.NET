@@ -91,9 +91,6 @@ namespace ARDrone.Input
         public String m_IPAddress = "127.0.0.1";
         public String m_Port = "8008";
 
-        // Console write delay
-        private int WriteDelay = 0;
-
         Commands CurrentCommand = Commands.None;
 
         protected ArrayList keysPressedBefore = new ArrayList();
@@ -166,7 +163,7 @@ namespace ARDrone.Input
                 CAVECalibrated = true;
 
             else if (CurrentCommand != Commands.None)
-                //if(CAVECalibrated)
+                if(CAVECalibrated)
                     buttonsPressed.Add(CurrentCommand.ToString());
 
             return buttonsPressed;
@@ -344,8 +341,19 @@ namespace ARDrone.Input
                         // Save calibration data
                         this.CalibrationData = new GestureData(JObject.Parse(szData));
 
-                        // Send a hover command
-                        tempCMD = 0;
+                        if (this.CalibrationData.valid)
+                        {
+                            tempCMD = 17;
+
+                            MessageBox.Show(this.CalibrationData.ToString());
+                        }
+                        else
+                        {
+                            // Send a hover command
+                            tempCMD = 0;
+
+                            MessageBox.Show(szData);
+                        }
                     }
                     else
                     {
@@ -384,7 +392,7 @@ namespace ARDrone.Input
                             MessageBox.Show("CAVE Calibrated!");
                         }
                         else
-                            //if (CAVECalibrated)
+                            if (CAVECalibrated)
                             {
                                 CurrentCommand = ((Commands)tempCMD);
                                 
@@ -500,64 +508,73 @@ namespace ARDrone.Input
     public class GestureData
     {
         public Dictionary<String, Gesture> Gestures = new Dictionary<String, Gesture>();
+        public Boolean valid = false;
 
         public GestureData(JObject o)
         {
-            
+            try
+            {
 
-            // Get up gesture
-            Gestures.Add("Up", new Gesture("Up",
-                                     new Vec3((string)o["Up"]["lsx"],
-                                              (string)o["Up"]["lsy"],
-                                              (string)o["Up"]["lsz"]),
-                                     new Vec3((string)o["Up"]["rsx"],
-                                              (string)o["Up"]["rsy"],
-                                              (string)o["Up"]["rsz"])));
+                // Get up gesture
+                Gestures.Add("Up", new Gesture("Up",
+                                         new Vec3((string)o["Up"]["lsx"],
+                                                  (string)o["Up"]["lsy"],
+                                                  (string)o["Up"]["lsz"]),
+                                         new Vec3((string)o["Up"]["rsx"],
+                                                  (string)o["Up"]["rsy"],
+                                                  (string)o["Up"]["rsz"])));
 
-            // Get down gesture
-            Gestures.Add("Down", new Gesture("Down",
-                                     new Vec3((string)o["Down"]["lsx"],
-                                              (string)o["Down"]["lsy"],
-                                              (string)o["Down"]["lsz"]),
-                                     new Vec3((string)o["Down"]["rsx"],
-                                              (string)o["Down"]["rsy"],
-                                              (string)o["Down"]["rsz"])));
+                // Get down gesture
+                Gestures.Add("Down", new Gesture("Down",
+                                         new Vec3((string)o["Down"]["lsx"],
+                                                  (string)o["Down"]["lsy"],
+                                                  (string)o["Down"]["lsz"]),
+                                         new Vec3((string)o["Down"]["rsx"],
+                                                  (string)o["Down"]["rsy"],
+                                                  (string)o["Down"]["rsz"])));
 
-            // Get up gesture
-            Gestures.Add("Left", new Gesture("Left",
-                                     new Vec3((string)o["Left"]["lsx"],
-                                              (string)o["Left"]["lsy"],
-                                              (string)o["Left"]["lsz"]),
-                                     new Vec3((string)o["Left"]["rsx"],
-                                              (string)o["Left"]["rsy"],
-                                              (string)o["Left"]["rsz"])));
+                // Get up gesture
+                Gestures.Add("Left", new Gesture("Left",
+                                         new Vec3((string)o["Left"]["lsx"],
+                                                  (string)o["Left"]["lsy"],
+                                                  (string)o["Left"]["lsz"]),
+                                         new Vec3((string)o["Left"]["rsx"],
+                                                  (string)o["Left"]["rsy"],
+                                                  (string)o["Left"]["rsz"])));
 
-            // Get up gesture
-            Gestures.Add("Right", new Gesture("Right",
-                                     new Vec3((string)o["Right"]["lsx"],
-                                              (string)o["Right"]["lsy"],
-                                              (string)o["Right"]["lsz"]),
-                                     new Vec3((string)o["Right"]["rsx"],
-                                              (string)o["Right"]["rsy"],
-                                              (string)o["Right"]["rsz"])));
+                // Get up gesture
+                Gestures.Add("Right", new Gesture("Right",
+                                         new Vec3((string)o["Right"]["lsx"],
+                                                  (string)o["Right"]["lsy"],
+                                                  (string)o["Right"]["lsz"]),
+                                         new Vec3((string)o["Right"]["rsx"],
+                                                  (string)o["Right"]["rsy"],
+                                                  (string)o["Right"]["rsz"])));
 
-            // Get up gesture
-            Gestures.Add("Forward", new Gesture("Forward",
-                                     new Vec3((string)o["Forward"]["lsx"],
-                                              (string)o["Forward"]["lsy"],
-                                              (string)o["Forward"]["lsz"]),
-                                     new Vec3((string)o["Forward"]["rsx"],
-                                              (string)o["Forward"]["rsy"],
-                                              (string)o["Forward"]["rsz"])));
+                // Get up gesture
+                Gestures.Add("Forward", new Gesture("Forward",
+                                         new Vec3((string)o["Forward"]["lsx"],
+                                                  (string)o["Forward"]["lsy"],
+                                                  (string)o["Forward"]["lsz"]),
+                                         new Vec3((string)o["Forward"]["rsx"],
+                                                  (string)o["Forward"]["rsy"],
+                                                  (string)o["Forward"]["rsz"])));
 
-            // Get up gesture
-            Gestures.Add("Back", new Gesture("Back",
-                                     new Vec3((string)o["Back"]["lsx"],
-                                              (string)o["Back"]["lsy"],
-                                              (string)o["Back"]["lsz"]),
-                                     new Vec3((string)o["Back"]["rsx"],
-                                              (string)o["Back"]["rsy"],
-                                              (string)o["Back"]["rsz"])));
+                // Get up gesture
+                Gestures.Add("Back", new Gesture("Back",
+                                         new Vec3((string)o["Back"]["lsx"],
+                                                  (string)o["Back"]["lsy"],
+                                                  (string)o["Back"]["lsz"]),
+                                         new Vec3((string)o["Back"]["rsx"],
+                                                  (string)o["Back"]["rsy"],
+                                                  (string)o["Back"]["rsz"])));
+
+                valid = true;
+            }
+            catch (JsonReaderException e)
+            {
+                valid = false;
+            }
         }
 
         public override String ToString()
