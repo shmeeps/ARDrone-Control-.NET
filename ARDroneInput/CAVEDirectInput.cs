@@ -357,17 +357,10 @@ namespace ARDrone.Input
                     }
                     else
                     {
-                        //if (this.WriteDelay <= 0)
-                        //{
-                            // Log the inputs
-                            //Console.WriteLine(szData);
-                            System.Diagnostics.Debug.WriteLine(szData + "\n");
+                        // Write the line to the console
+                        System.Diagnostics.Debug.WriteLine(szData + "\n");
 
-                        //    this.WriteDelay = 1000;
-                        //}
-                        //else
-                        //    this.WriteDelay--;
-
+                        // Attempt to convert the command
                         tempCMD = Convert.ToInt32(szData);
                     }
                 }
