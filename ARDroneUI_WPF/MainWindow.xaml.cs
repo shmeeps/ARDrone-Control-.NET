@@ -720,39 +720,61 @@ namespace ARDrone.UI
                         // TODO: Finish Check-in logic for whatever GUI elements need to be updated
                         Input.InputManager.CheckInController.CompletedCheckIns.Add(tempEvent.CheckInID);
 
-                        // Write to the output saying the check-in was completed 
-                        UpdateUIAsync("Check in received, ID: " + tempEvent.CheckInID + " - " + tempEvent.Time.ToString());
+                        // Set time
+                        String eTime = tempEvent.Time.ToString(@"mm\:ss");
 
-                        // Update patient data
-                        switch(tempEvent.CheckInID)
+                        // Write to the output saying the check-in was completed 
+                        UpdateUIAsync("Check in received, ID: " + tempEvent.CheckInID + " - " + eTime);
+
+                        // Make sure a patient is loaded
+                        if (Input.InputManager.DatabaseController != null &&
+                            Input.InputManager.DatabaseController.currentPatient != null)
                         {
-                            /*case 1:
-                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time1 = tempEvent.Time.ToString();
-                                break;
-                            case 2:
-                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time2 = tempEvent.Time.ToString();
-                                break;
-                            case 3:
-                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time3 = tempEvent.Time.ToString();
-                                break;
-                            case 4:
-                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time4 = tempEvent.Time.ToString();
-                                break;
-                            default:
-                                break;*/
+                            // Update patient data
+                            switch (tempEvent.CheckInID)
+                            {
+                                case 1:
+                                    this.curTimeOne.Text = eTime;
+                                    Input.InputManager.DatabaseController.savingPatient.LastSession.Time1 = eTime;
+                                    break;
+                                case 2:
+                                    this.curTimeTwo.Text = eTime;
+                                    Input.InputManager.DatabaseController.savingPatient.LastSession.Time2 = eTime;
+                                    break;
+                                case 3:
+                                    this.curTimeThree.Text = eTime;
+                                    Input.InputManager.DatabaseController.savingPatient.LastSession.Time3 = eTime;
+                                    break;
+                                case 4:
+                                    this.curTimeFour.Text = eTime;
+                                    Input.InputManager.DatabaseController.savingPatient.LastSession.Time4 = eTime;
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
 
                         // Check to see if they have completed the simulation
                         if (Input.InputManager.CheckInController.CompletedCheckIns.Count >= 4)
                         {
                             // Write to the output saying simulation complete
-                            UpdateUIAsync("Simulation compelted in " + tempEvent.Time.ToString());
+                            UpdateUIAsync("Simulation compelted in " + eTime);
+                            this.curTimeTotal.Text = eTime;
 
                             // Stop the check-in timer
                             StopCheckInSystem();
 
-                            // Save patient data
-                            Input.InputManager.DatabaseController.UpdatePatient();
+                            // Reset form elements
+                            this.startCheckIn.IsChecked = false;
+                            this.stopCheckIn.IsChecked = true;
+
+                            // Make sure a patient is loaded
+                            if (Input.InputManager.DatabaseController != null && 
+                                Input.InputManager.DatabaseController.currentPatient != null)
+                            {
+                                // Save patient data
+                                Input.InputManager.DatabaseController.UpdatePatient();
+                            }
                         }
                     }
                 }
