@@ -726,7 +726,7 @@ namespace ARDrone.UI
                         // Update patient data
                         switch(tempEvent.CheckInID)
                         {
-                            case 1:
+                            /*case 1:
                                 Input.InputManager.DatabaseController.currentPatient.LastSession.Time1 = tempEvent.Time.ToString();
                                 break;
                             case 2:
@@ -739,7 +739,7 @@ namespace ARDrone.UI
                                 Input.InputManager.DatabaseController.currentPatient.LastSession.Time4 = tempEvent.Time.ToString();
                                 break;
                             default:
-                                break;
+                                break;*/
                         }
 
                         // Check to see if they have completed the simulation
@@ -1109,6 +1109,7 @@ namespace ARDrone.UI
                 ARDrone.Input.InputManager.CheckInController.Stopwatch.Stop();
                 ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
                 timerCheckInUpdate.Stop();
+                Input.InputManager.CheckInController.CompletedCheckIns.Clear();
                 UpdateUIAsync("Check In System Stopped");
             }
         }
