@@ -17,44 +17,74 @@
     <Grid>
         <DockPanel LastChildFill="True">
             <DockPanel DockPanel.Dock="Left" Width="400" Margin="5">
-                <Grid DockPanel.Dock="Top" Width="400" Height="350" Margin="5">
+                <Grid DockPanel.Dock="Top" Width="400" Margin="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="195" />
                         <ColumnDefinition Width="195" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
                         <GroupBox Header="Controls">
                             <StackPanel>
                                 <Button Name="buttonStartClaibration" Content="Calibrate" Margin="5,2,5,2" Click="buttonStartCalibration_Click" />
+                                <Button Name="buttonCommandTakeoff" Content="Take off" Grid.Row="0" Grid.Column="1" Margin="3" Click="buttonCommandTakeoff_Click" />
+                                <Button Name="buttonCommandHover" Content="Hover" Grid.Row="1" Grid.Column="1" Margin="3" Click="buttonCommandHover_Click" />
+                                <Button Name="buttonCommandEmergency" Content="Emergency" Grid.Row="3" Grid.Column="1" Margin="3" Click="buttonCommandEmergency_Click" />
+                                <Button Name="buttonCommandFlatTrim" Content="Flat trim" Grid.Row="4" Grid.Column="1" Margin="3"  Click="buttonCommandFlatTrim_Click" />
+                                <Button Name="buttonCommandChangeCamera" Content="Change camera" Grid.Row="6" Grid.Column="1" Margin="3" Click="buttonCommandChangeCamera_Click" />
+                                <Button Name="buttonCommandPatientToSupervisor" Content="Supervisor Control" Grid.Row="6" Grid.Column="1" Margin="3" Click="buttonCommandChangeCamera_Click" />
+                                <Button Name="buttonCommandSupervisorToPatient" Content="Patient Control" Grid.Row="6" Grid.Column="1" Margin="3" Click="buttonCommandChangeCamera_Click" />
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="5">
+                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="5">
                         <GroupBox Header="Check-In System" Padding="5">
                             <StackPanel>
                                 <RadioButton Content="On" Name="startCheckIn" Click="startCheckIn_Click" />
-                                  <RadioButton Content="Off" Name="stopCheckIn" Click="stopCheckIn_Click" />
+                                <RadioButton Content="Off" Name="stopCheckIn" Click="stopCheckIn_Click" IsChecked="True" />
                             </StackPanel>
                         </GroupBox>
                         <GroupBox Header="Times">
-                            <Table>
-                                <TableRowGroup>
-                                    <TableRow>
-                                        <TableCell>
-                                            <Label Content="derp"/>
-                                            <TextBox/>
-                                        </TableCell>
-                                    </TableRow>
-                                </TableRowGroup>
-                            </Table>
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Label Grid.Column="0" Grid.Row="0" Content="Time 1:" Margin="5, 0, 5, 0" />
+                                <TextBox Grid.Column="0" Grid.Row="1" Margin="5, 0, 5, 0" IsReadOnly="True" />
+
+                                <Label Grid.Column="1" Grid.Row="0" Content="Time 2:" Margin="5, 0, 5, 0" />
+                                <TextBox Grid.Column="1" Grid.Row="1" Margin="5, 0, 5, 0" IsReadOnly="True" />
+
+                                <Label Grid.Column="0" Grid.Row="2" Content="Time 3:" Margin="5, 0, 5, 0" />
+                                <TextBox Grid.Column="0" Grid.Row="3" Margin="5, 0, 5, 0" IsReadOnly="True" />
+
+                                <Label Grid.Column="1" Grid.Row="2" Content="Time 4:" Margin="5, 0, 5, 0" />
+                                <TextBox Grid.Column="1" Grid.Row="3" Margin="5, 0, 5, 0" IsReadOnly="True" />
+
+                                <Label Grid.Column="0" Grid.Row="4" Content="Total Time:" Margin="5, 0, 5, 0" />
+                                <TextBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Margin="5, 0, 5, 0" IsReadOnly="True" />
+                            </Grid>
                         </GroupBox>
                     </StackPanel>
-                </Grid>
-                <DockPanel Margin="5" DockPanel.Dock="Bottom">
-                    <GroupBox Header="Patient Information">
+                    <DockPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="5" DockPanel.Dock="Bottom">
+                        <GroupBox Header="Patient Information">
 
-                    </GroupBox>
-                </DockPanel>
+                        </GroupBox>
+                    </DockPanel>
+                </Grid>
         </DockPanel>
         <Grid DockPanel.Dock="Right" Width="370" Margin="5">
                 <Grid.ColumnDefinitions>
@@ -185,26 +215,15 @@
             <Grid DockPanel.Dock="Bottom" Height="165">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="3*" />
                 </Grid.RowDefinitions>
 
-                <ScrollViewer Name="scrollViewerOutput" VerticalScrollBarVisibility="Auto" Grid.Row ="0" Grid.Column="0" Grid.RowSpan="7" Margin="3">
+                <ScrollViewer Name="scrollViewerOutput" VerticalScrollBarVisibility="Auto" Grid.Row ="0" Grid.Column="0" Margin="3">
                     <TextBox Name="textBoxOutput" IsReadOnly="True" Canvas.Left="0" Canvas.Top="0"  AcceptsReturn="True" Foreground="Yellow" Background="Black" />
                 </ScrollViewer>
-                <Button Name="buttonCommandTakeoff" Content="Take off" Grid.Row="0" Grid.Column="1" Margin="3" Click="buttonCommandTakeoff_Click" />
-                <Button Name="buttonCommandHover" Content="Hover" Grid.Row="1" Grid.Column="1" Margin="3" Click="buttonCommandHover_Click" />
-                <Button Name="buttonCommandEmergency" Content="Emergency" Grid.Row="3" Grid.Column="1" Margin="3" Click="buttonCommandEmergency_Click" />
-                <Button Name="buttonCommandFlatTrim" Content="Flat trim" Grid.Row="4" Grid.Column="1" Margin="3"  Click="buttonCommandFlatTrim_Click" />
-                <Button Name="buttonCommandChangeCamera" Content="Change camera" Grid.Row="6" Grid.Column="1" Margin="3" Click="buttonCommandChangeCamera_Click" />
+                
             </Grid>
             <Image Name="imageVideo" Stretch="Fill" Canvas.Left="49" Canvas.Top="33" />
         </DockPanel>
