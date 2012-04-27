@@ -44,6 +44,7 @@ namespace ARDrone.UI
         private DispatcherTimer timerVideoUpdate;
         private DispatcherTimer timerHudStatusUpdate;
         private DispatcherTimer timerCheckInUpdate;
+        private DispatcherTimer timerPatientUpdate;
 
         private VideoRecorder videoRecorder;
         private SnapshotRecorder snapshotRecorder;
@@ -148,6 +149,10 @@ namespace ARDrone.UI
             timerCheckInUpdate = new DispatcherTimer();
             timerCheckInUpdate.Interval = new TimeSpan(0, 0, 0, 0, 50);
             timerCheckInUpdate.Tick += new EventHandler(timerCheckInUpdate_Tick);
+
+            timerPatientUpdate = new DispatcherTimer();
+            timerPatientUpdate.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            timerPatientUpdate.Tick += new EventHandler(timerPatientUpdate_Tick);
         }
 
         private void InitializeInputManager()
@@ -718,6 +723,25 @@ namespace ARDrone.UI
                         // Write to the output saying the check-in was completed 
                         UpdateUIAsync("Check in received, ID: " + tempEvent.CheckInID + " - " + tempEvent.Time.ToString());
 
+                        // Update patient data
+                        switch(tempEvent.CheckInID)
+                        {
+                            case 1:
+                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time1 = tempEvent.Time.ToString();
+                                break;
+                            case 2:
+                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time2 = tempEvent.Time.ToString();
+                                break;
+                            case 3:
+                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time3 = tempEvent.Time.ToString();
+                                break;
+                            case 4:
+                                Input.InputManager.DatabaseController.currentPatient.LastSession.Time4 = tempEvent.Time.ToString();
+                                break;
+                            default:
+                                break;
+                        }
+
                         // Check to see if they have completed the simulation
                         if (Input.InputManager.CheckInController.CompletedCheckIns.Count >= 4)
                         {
@@ -726,8 +750,23 @@ namespace ARDrone.UI
 
                             // Stop the check-in timer
                             StopCheckInSystem();
+
+                            // Save patient data
+                            Input.InputManager.DatabaseController.UpdatePatient();
                         }
                     }
+                }
+            }
+        }
+
+        private void UpdatePatient()
+        {
+            // Make sure a database controller is connected
+            if (Input.InputManager.DatabaseController != null)
+            {
+                if (Input.InputManager.DatabaseController.currentPatient != null)
+                {
+                    // TODO: Update patient session GUI data
                 }
             }
         }
@@ -1036,6 +1075,11 @@ namespace ARDrone.UI
             UpdateCheckInSystem();
         }
 
+        private void timerPatientUpdate_Tick(object sender, EventArgs e)
+        {
+            UpdatePatient();
+        }
+
         private void buttonSendOutsideOff_Click(object sender, RoutedEventArgs e)
         {
             SendOutisdeOff();
@@ -1048,19 +1092,25 @@ namespace ARDrone.UI
 
         public void StartCheckInSystem()
         {
-            ARDrone.Input.InputManager.CheckInController.processCheckInEvents = true;
-            ARDrone.Input.InputManager.CheckInController.Stopwatch.Start();
-            timerCheckInUpdate.Start();
-            UpdateUIAsync("Check In System Started");
+            if (ARDrone.Input.InputManager.CheckInController.processCheckInEvents == false)
+            {
+                ARDrone.Input.InputManager.CheckInController.processCheckInEvents = true;
+                ARDrone.Input.InputManager.CheckInController.Stopwatch.Start();
+                timerCheckInUpdate.Start();
+                UpdateUIAsync("Check In System Started");
+            }
         }
 
         public void StopCheckInSystem()
         {
-            ARDrone.Input.InputManager.CheckInController.processCheckInEvents = false;
-            ARDrone.Input.InputManager.CheckInController.Stopwatch.Stop();
-            ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
-            timerCheckInUpdate.Stop();
-            UpdateUIAsync("Check In System Stopped");
+            if (ARDrone.Input.InputManager.CheckInController.processCheckInEvents == true)
+            {
+                ARDrone.Input.InputManager.CheckInController.processCheckInEvents = false;
+                ARDrone.Input.InputManager.CheckInController.Stopwatch.Stop();
+                ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
+                timerCheckInUpdate.Stop();
+                UpdateUIAsync("Check In System Stopped");
+            }
         }
 
         private void startCheckIn_Click(object sender, RoutedEventArgs e)

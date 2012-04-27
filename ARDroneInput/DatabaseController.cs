@@ -25,6 +25,8 @@ namespace ARDrone.Input
         // Connected flag
         public bool connected = false;
 
+        public Patient currentPatient = null;
+
         // MySQL Connection
         String cs = @"server=localhost;userid=root;password=;database=crh";
         MySqlConnection conn = null;
@@ -57,7 +59,7 @@ namespace ARDrone.Input
             DetermineMapping();
         }
 
-        public Patient getPatientByID(int id)
+        public void getPatientByID(int id)
         {
             try
             {
@@ -95,21 +97,63 @@ namespace ARDrone.Input
 
                 Session s = new Session(rdr.GetString(3), rdr.GetString(4), rdr.GetString(5), rdr.GetString(6), rdr.GetString(7));
 
-                return new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+                this.currentPatient = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+
+                //return 
             }
             catch (MySqlException ex)
             {
                 Console.WriteLine("Error: {0}", ex.ToString());
 
-                return null;
+                //return null;
             }
         }
 
-        public bool UpdatePatient(Patient p)
+        public bool UpdatePatient()
         {
+            try
+            {
+                MySqlDataReader rdr = null;
 
+                string stm = @"INSERT INTO
+                                    `sessions` s 
+                                (
+                                    `patientID`,
+                                    `CheckInOneTime`,
+                                    `CheckInTwoTime`,
+                                    `CheckInThreeTime`,
+                                    `CheckInFourTime`
+                                )
+                                VALUES
+                                (
+                                    @pid,
+                                    @checkinone,
+                                    @checkintwo,
+                                    @checkinthree,
+                                    @checkinfour
+                                )";
 
-            return true;
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = this.conn;
+                cmd.CommandText = stm;
+                cmd.Prepare();
+
+                cmd.Parameters.AddWithValue("@pid", currentPatient.ID);
+                cmd.Parameters.AddWithValue("@checkinone", currentPatient.LastSession.Time1);
+                cmd.Parameters.AddWithValue("@checkintwo", currentPatient.LastSession.Time2);
+                cmd.Parameters.AddWithValue("@checkinthree", currentPatient.LastSession.Time3);
+                cmd.Parameters.AddWithValue("@checkinfour", currentPatient.LastSession.Time4);
+                rdr = cmd.ExecuteReader();
+
+                //rdr.Read();
+                //cmd.LastInsertedId;
+
+                return true;
+            }
+            catch (MySqlException e)
+            {
+                return false;
+            }
         }
 
         protected override InputMappings.InputMapping GetStandardMapping()
