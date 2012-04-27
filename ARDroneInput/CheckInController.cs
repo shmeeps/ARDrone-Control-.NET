@@ -316,9 +316,13 @@ namespace ARDrone.Input
                 }
                 finally
                 {
-                    if (tempCheckIn > 0 && tempCheckIn <= 4)
+                    if (tempCheckIn == 0)
                     {
-                        if(processCheckInEvents)
+                        MessageBox.Show("Test check-in received!");
+                    }
+                    else if (tempCheckIn > 0 && tempCheckIn <= 4)
+                    {
+                        if (processCheckInEvents)
                             this.ActiveCheckIns.Enqueue(new CheckInEvent(tempCheckIn, this.Stopwatch.Elapsed));
                     }
                     else
