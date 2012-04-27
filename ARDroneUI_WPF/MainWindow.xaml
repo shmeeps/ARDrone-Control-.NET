@@ -30,14 +30,23 @@
                         </GroupBox>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="5">
-                        <GroupBox Header="Check-In System">
+                        <GroupBox Header="Check-In System" Padding="5">
                             <StackPanel>
-                                <Button Content="Start Check-in Timer" Name="startCheckIn" Click="startCheckIn_Click" />
-                                <Button Content="Stop Check-in Timer" Name="stopCheckIn" Click="stopCheckIn_Click" />
+                                <RadioButton Content="On" Name="startCheckIn" Click="startCheckIn_Click" />
+                                  <RadioButton Content="Off" Name="stopCheckIn" Click="stopCheckIn_Click" />
                             </StackPanel>
                         </GroupBox>
                         <GroupBox Header="Times">
-
+                            <Table>
+                                <TableRowGroup>
+                                    <TableRow>
+                                        <TableCell>
+                                            <Label Content="derp"/>
+                                            <TextBox/>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableRowGroup>
+                            </Table>
                         </GroupBox>
                     </StackPanel>
                 </Grid>

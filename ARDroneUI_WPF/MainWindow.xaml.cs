@@ -1092,19 +1092,25 @@ namespace ARDrone.UI
 
         public void StartCheckInSystem()
         {
-            ARDrone.Input.InputManager.CheckInController.processCheckInEvents = true;
-            ARDrone.Input.InputManager.CheckInController.Stopwatch.Start();
-            timerCheckInUpdate.Start();
-            UpdateUIAsync("Check In System Started");
+            if (ARDrone.Input.InputManager.CheckInController.processCheckInEvents == false)
+            {
+                ARDrone.Input.InputManager.CheckInController.processCheckInEvents = true;
+                ARDrone.Input.InputManager.CheckInController.Stopwatch.Start();
+                timerCheckInUpdate.Start();
+                UpdateUIAsync("Check In System Started");
+            }
         }
 
         public void StopCheckInSystem()
         {
-            ARDrone.Input.InputManager.CheckInController.processCheckInEvents = false;
-            ARDrone.Input.InputManager.CheckInController.Stopwatch.Stop();
-            ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
-            timerCheckInUpdate.Stop();
-            UpdateUIAsync("Check In System Stopped");
+            if (ARDrone.Input.InputManager.CheckInController.processCheckInEvents == true)
+            {
+                ARDrone.Input.InputManager.CheckInController.processCheckInEvents = false;
+                ARDrone.Input.InputManager.CheckInController.Stopwatch.Stop();
+                ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
+                timerCheckInUpdate.Stop();
+                UpdateUIAsync("Check In System Stopped");
+            }
         }
 
         private void startCheckIn_Click(object sender, RoutedEventArgs e)
