@@ -50,6 +50,14 @@ namespace ARDrone.Input
 
         private static InputManager instance = null;
 
+        public enum Inputs
+        {
+            Supervisor,
+            Patient
+        }
+
+        public static Inputs ActiveInput = Inputs.Supervisor;
+
         public InputManager(IntPtr windowHandle)
         {
             this.windowHandle = windowHandle;

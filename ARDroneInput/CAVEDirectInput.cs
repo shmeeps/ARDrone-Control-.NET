@@ -159,12 +159,15 @@ namespace ARDrone.Input
         {
             List<String> buttonsPressed = new List<String>();
 
-            if (CurrentCommand == Commands.CalibrationComplete)
-                CAVECalibrated = true;
+            if (InputManager.ActiveInput == InputManager.Inputs.Patient)
+            {
+                if (CurrentCommand == Commands.CalibrationComplete)
+                    CAVECalibrated = true;
 
-            else if (CurrentCommand != Commands.None)
-                if(CAVECalibrated)
-                    buttonsPressed.Add(CurrentCommand.ToString());
+                else if (CurrentCommand != Commands.None)
+                    if (CAVECalibrated)
+                        buttonsPressed.Add(CurrentCommand.ToString());
+            }
 
             return buttonsPressed;
         }

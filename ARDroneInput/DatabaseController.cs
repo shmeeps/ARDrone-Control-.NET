@@ -148,7 +148,8 @@ namespace ARDrone.Input
                 cmd.Parameters.AddWithValue("@checkinfour", savingPatient.LastSession.Time4);
                 rdr = cmd.ExecuteReader();
 
-                
+                // Make the system load the newest test
+                this.currentPatient = this.savingPatient;
 
                 //rdr.Read();
                 //cmd.LastInsertedId;

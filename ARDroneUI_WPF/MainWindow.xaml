@@ -40,8 +40,8 @@
                         </GroupBox>
                         <GroupBox Header="Control">
                             <StackPanel>
-                                <RadioButton Name="buttonCommandPatientToSupervisor" Content="Supervisor Control" Grid.Row="6" Grid.Column="1" Margin="3" Click="buttonCommandChangeCamera_Click" IsChecked="True" />
-                                <RadioButton Name="buttonCommandSupervisorToPatient" Content="Patient Control" Grid.Row="6" Grid.Column="1" Margin="3" Click="buttonCommandChangeCamera_Click" />
+                                <RadioButton Name="buttonCommandPatientToSupervisor" Content="Supervisor Control" Grid.Row="6" Grid.Column="1" Margin="3" Click="patientToSupervisor_Checked" IsChecked="True" />
+                                <RadioButton Name="buttonCommandSupervisorToPatient" Content="Patient Control" Grid.Row="6" Grid.Column="1" Margin="3" Click="supervisorToPatient_Checked" />
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
