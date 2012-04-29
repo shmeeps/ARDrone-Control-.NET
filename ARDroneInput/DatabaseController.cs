@@ -26,6 +26,8 @@ namespace ARDrone.Input
         public bool connected = false;
 
         public Patient currentPatient = null;
+        public Patient savingPatient = null;
+        public Patient loadedPatient = null;
 
         // MySQL Connection
         String cs = @"server=localhost;userid=root;password=;database=crh";
@@ -98,6 +100,7 @@ namespace ARDrone.Input
                 Session s = new Session(rdr.GetString(3), rdr.GetString(4), rdr.GetString(5), rdr.GetString(6), rdr.GetString(7));
 
                 this.currentPatient = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+                this.savingPatient = this.currentPatient;
 
                 //return 
             }
@@ -138,11 +141,11 @@ namespace ARDrone.Input
                 cmd.CommandText = stm;
                 cmd.Prepare();
 
-                cmd.Parameters.AddWithValue("@pid", currentPatient.ID);
-                cmd.Parameters.AddWithValue("@checkinone", currentPatient.LastSession.Time1);
-                cmd.Parameters.AddWithValue("@checkintwo", currentPatient.LastSession.Time2);
-                cmd.Parameters.AddWithValue("@checkinthree", currentPatient.LastSession.Time3);
-                cmd.Parameters.AddWithValue("@checkinfour", currentPatient.LastSession.Time4);
+                cmd.Parameters.AddWithValue("@pid", savingPatient.ID);
+                cmd.Parameters.AddWithValue("@checkinone", savingPatient.LastSession.Time1);
+                cmd.Parameters.AddWithValue("@checkintwo", savingPatient.LastSession.Time2);
+                cmd.Parameters.AddWithValue("@checkinthree", savingPatient.LastSession.Time3);
+                cmd.Parameters.AddWithValue("@checkinfour", savingPatient.LastSession.Time4);
                 rdr = cmd.ExecuteReader();
 
                 
