@@ -145,6 +145,8 @@ namespace ARDrone.Input
                 cmd.Parameters.AddWithValue("@checkinfour", currentPatient.LastSession.Time4);
                 rdr = cmd.ExecuteReader();
 
+                
+
                 //rdr.Read();
                 //cmd.LastInsertedId;
 
