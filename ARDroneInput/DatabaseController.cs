@@ -68,23 +68,35 @@ namespace ARDrone.Input
                 MySqlDataReader rdr = null;
 
                 string stm = @"SELECT 
-                                    `p`.`ID`, 
-                                    `p`.`FirstName`, 
-                                    `p`.`LastName`, 
-                                    `s`.`Date`, 
-                                    `s`.`CheckInOneTime`, 
-                                    `s`.`CheckInTwoTime`, 
-                                    `s`.`CheckInThreeTime`, 
-                                    `s`.`CheckInFourTime` 
+                                    `ID`, 
+                                    `FirstName`, 
+                                    `LastName`, 
+                                    `Date`, 
+                                    `CheckInOneTime`, 
+                                    `CheckInTwoTime`, 
+                                    `CheckInThreeTime`, 
+                                    `CheckInFourTime` 
                                 FROM 
-                                    `patients` p, 
-                                    `sessions` s 
-                                WHERE 
-                                    `p`.`ID` = @ID 
-                                AND 
-                                    `p`.`ID` = `s`.`patientID` 
-                                ORDER BY 
-                                    `s`.`Date` DESC 
+                                (
+                                    SELECT
+                                        `p`.`ID`, 
+                                        `p`.`FirstName`, 
+                                        `p`.`LastName`, 
+                                        `s`.`Date`, 
+                                        `s`.`CheckInOneTime`, 
+                                        `s`.`CheckInTwoTime`, 
+                                        `s`.`CheckInThreeTime`, 
+                                        `s`.`CheckInFourTime` 
+                                    FROM
+                                        `patients` p, 
+                                        `sessions` s 
+                                    WHERE 
+                                        `p`.`ID` = @ID 
+                                    AND 
+                                        `p`.`ID` = `s`.`patientID` 
+                                    ORDER BY 
+                                        `s`.`Date` DESC
+                                ) s
                                 LIMIT 1";
 
                 MySqlCommand cmd = new MySqlCommand();
@@ -159,6 +171,69 @@ namespace ARDrone.Input
             catch (MySqlException e)
             {
                 return false;
+            }
+        }
+
+        public Queue<SearchResult> SearchPatients(String term)
+        {
+            Queue<SearchResult> results = new Queue<SearchResult>();
+            String rterm = "";
+
+            if (term.Contains(" "))
+            {
+                // TERRIBLE CODE IS TERRIBLE, I KNOW
+                string[] split = term.Split(new Char[] {' '});
+                Queue<String> validterms = new Queue<String>();
+
+                foreach (string s in split)
+                    if (s.Trim() != "")
+                        validterms.Enqueue(s);
+
+                term = validterms.Dequeue();
+                rterm = validterms.Dequeue();
+            }
+            else
+            {
+                rterm = term;
+            }
+
+            // Query!
+            try
+            {
+                MySqlDataReader rdr = null;
+
+                string stm = @"SELECT 
+                                    `ID`, 
+                                    `FirstName`, 
+                                    `LastName`
+                                FROM
+                                    `patients`
+                                WHERE
+                                    `FirstName` LIKE @term
+                                OR
+                                    `LastName` LIKE @rterm";
+
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = this.conn;
+                cmd.CommandText = stm;
+                cmd.Prepare();
+
+                cmd.Parameters.AddWithValue("@term", "%" + term + "%");
+                cmd.Parameters.AddWithValue("@rterm", "%" + rterm + "%");
+                rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    results.Enqueue(new SearchResult(rdr.GetInt32(0), rdr.GetString(1) + " " + rdr.GetString(2)));
+                }
+
+                return results;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.ToString());
+
+                return results;
             }
         }
 
@@ -324,6 +399,18 @@ namespace ARDrone.Input
             this.Time2 = time2;
             this.Time3 = time3;
             this.Time4 = time4;
+        }
+    }
+
+    public class SearchResult
+    {
+        public int ID;
+        public String Name;
+
+        public SearchResult(int id, String name)
+        {
+            this.ID = id;
+            this.Name = name;
         }
     }
 }

@@ -668,6 +668,8 @@ namespace ARDrone.UI
 
         private void StartVideoCapture()
         {
+            // TODO: Auto gen file name
+
             if (!CanCaptureVideo || videoRecorder.IsVideoCaptureRunning) { return; }
 
             String videoFilePath = ShowFileDialog(".avi", "Video files (.avi)|*.avi");
@@ -789,6 +791,12 @@ namespace ARDrone.UI
                 if (Input.InputManager.DatabaseController.currentPatient != null)
                 {
                     // TODO: Update patient session GUI data
+                    this.patientName.Text = Input.InputManager.DatabaseController.currentPatient.FirstName + " " + Input.InputManager.DatabaseController.currentPatient.LastName;
+                    this.oldTimeOne.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time1;
+                    this.oldTimeTwo.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time2;
+                    this.oldTimeThree.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time3;
+                    this.oldTimeFour.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time4;
+                    this.oldTimeTotal.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time4;
                 }
             }
         }
