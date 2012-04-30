@@ -18,17 +18,29 @@ namespace ARDrone.UI
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class Window1 : Window
+    public partial class PatientSettings : Window
     {
-        public Window1()
+        public PatientSettings()
         {
             InitializeComponent();
+
+            SearchPatients("");
         }
 
         public void SearchPatients(String term)
         {
-            // TODO: Fix Databasecontroller scope?
-            // Queue<Input.InputManager.DatabaseController.> result = Input.InputManager.DatabaseController.SearchPatients(term);
+            Queue<SearchResult> results = Input.InputManager.DatabaseController.SearchPatients(term);
+
+            SearchResults.Items.Clear();
+
+            foreach (SearchResult r in results)
+            {
+                ListBoxItem i = new ListBoxItem();
+                i.Tag = r.ID;
+                i.Content = r.Name;
+
+                SearchResults.Items.Add(i);
+            }
         }
 
         private void SearchCancel_Click(object sender, RoutedEventArgs e)
@@ -38,7 +50,17 @@ namespace ARDrone.UI
 
         private void SearchSubmit_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Check to see if any patient selected in list box, if not, check for patient id, if not, fail
+            if (PatientID.Text != "")
+            {
+                Input.InputManager.DatabaseController.getPatientByID(int.Parse(PatientID.Text));
+                this.Close();
+            }
+            else
+            {
+                ListBoxItem selected = (ListBoxItem)SearchResults.SelectedItem;
+                Input.InputManager.DatabaseController.getPatientByID(((Int32)(selected.Tag)));
+                this.Close();
+            }
         }
 
         private void PatientName_KeyUp(object sender, KeyEventArgs e)

@@ -107,12 +107,16 @@ namespace ARDrone.Input
                 cmd.Parameters.AddWithValue("@ID", id);
                 rdr = cmd.ExecuteReader();
 
-                rdr.Read();
+                if (rdr.Read())
+                {
+                    Session s = new Session(rdr.GetString(3), rdr.GetString(4), rdr.GetString(5), rdr.GetString(6), rdr.GetString(7));
 
-                Session s = new Session(rdr.GetString(3), rdr.GetString(4), rdr.GetString(5), rdr.GetString(6), rdr.GetString(7));
+                    this.currentPatient = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+                    this.savingPatient = this.currentPatient;
+                }
 
-                this.currentPatient = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
-                this.savingPatient = this.currentPatient;
+                // Close the reader
+                rdr.Close();
 
                 //return 
             }
@@ -163,6 +167,9 @@ namespace ARDrone.Input
                 // Make the system load the newest test
                 this.currentPatient = this.savingPatient;
 
+                // Close the reader
+                rdr.Close();
+
                 //rdr.Read();
                 //cmd.LastInsertedId;
 
@@ -190,7 +197,11 @@ namespace ARDrone.Input
                         validterms.Enqueue(s);
 
                 term = validterms.Dequeue();
-                rterm = validterms.Dequeue();
+
+                if (validterms.Count == 0)
+                    rterm = term;
+                else
+                    rterm = validterms.Dequeue();
             }
             else
             {
@@ -211,7 +222,9 @@ namespace ARDrone.Input
                                 WHERE
                                     `FirstName` LIKE @term
                                 OR
-                                    `LastName` LIKE @rterm";
+                                    `LastName` LIKE @rterm
+                                ORDER BY
+                                    `LastName` ASC";
 
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = this.conn;
@@ -226,6 +239,9 @@ namespace ARDrone.Input
                 {
                     results.Enqueue(new SearchResult(rdr.GetInt32(0), rdr.GetString(1) + " " + rdr.GetString(2)));
                 }
+
+                // Close the reader
+                rdr.Close();
 
                 return results;
             }

@@ -80,6 +80,8 @@ namespace ARDrone.UI
             {
                 this.Close();
             }
+
+            timerPatientUpdate.Start();
         }
 
         public void Dispose()
@@ -788,8 +790,10 @@ namespace ARDrone.UI
             // Make sure a database controller is connected
             if (Input.InputManager.DatabaseController != null)
             {
+                
                 if (Input.InputManager.DatabaseController.currentPatient != null)
                 {
+                    
                     // TODO: Update patient session GUI data
                     this.patientName.Text = Input.InputManager.DatabaseController.currentPatient.FirstName + " " + Input.InputManager.DatabaseController.currentPatient.LastName;
                     this.oldTimeOne.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time1;
@@ -1170,6 +1174,12 @@ namespace ARDrone.UI
             UpdateUIAsync("Control given to Patient");
         }
 
+        public void LoadPatient()
+        {
+            PatientSettings patientSettings = new PatientSettings();
+            patientSettings.ShowDialog();
+        }
+
         private void startCheckIn_Click(object sender, RoutedEventArgs e)
         {
             StartCheckInSystem();
@@ -1188,6 +1198,11 @@ namespace ARDrone.UI
         private void supervisorToPatient_Checked(object sender, RoutedEventArgs e)
         {
             SupervisorToPatient();
+        }
+
+        private void buttonSelectPatient_Click(object sender, RoutedEventArgs e)
+        {
+            LoadPatient();
         }
     }
 }
