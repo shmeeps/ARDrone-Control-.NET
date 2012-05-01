@@ -683,9 +683,9 @@ namespace ARDrone.UI
             if (!CanCaptureVideo || videoRecorder.IsVideoCaptureRunning) { return; }
 
             if (Input.InputManager.DatabaseController == null) { return; }
-
+            
             if (Input.InputManager.DatabaseController.currentPatient == null) { return; }
-
+            
             int vidId = Input.InputManager.DatabaseController.reserveVideo();
             String videoFilePath = System.Windows.Forms.Application.StartupPath + "\\Videos\\" + vidId + ".avi";
 

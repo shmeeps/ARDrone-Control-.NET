@@ -111,7 +111,7 @@ namespace ARDrone.Input
 
                 if (rdr.Read())
                 {
-                    p = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+                    p = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2));
                 }
 
                 // Close the reader
@@ -278,10 +278,16 @@ namespace ARDrone.Input
                 rdr = cmd.ExecuteReader();
 
                 if (rdr != null && rdr.Read())
-                  return rdr.GetInt32(0);
-
-                // Close the reader
-                rdr.Close();
+                {
+                    int temp = rdr.GetInt32(0);
+                    rdr.Close();
+                    return temp;
+                }
+                else
+                {
+                    rdr.Close();
+                    return -1;
+                }
             }
             catch (MySqlException e)
             {
@@ -360,8 +366,6 @@ namespace ARDrone.Input
                 return results;
             }
         }
-
-        public 
 
         protected override InputMappings.InputMapping GetStandardMapping()
         {
@@ -500,6 +504,14 @@ namespace ARDrone.Input
         public String FirstName;
         public String LastName;
         public Session LastSession;
+
+        public Patient(int id, String firstname, String lastname)
+        {
+            this.ID = id;
+            this.FirstName = firstname;
+            this.LastName = lastname;
+            this.LastSession = null;
+        }
 
         public Patient(int id, String firstname, String lastname, Session lastsession)
         {
