@@ -27,7 +27,7 @@ namespace ARDrone.Input
         private Socket m_mainSocket;
         private Socket[] m_workerSocket = new Socket[10];
         private int m_clientCount = 0;
-        static int m_bufferSize = 1024;
+        static int m_bufferSize = 1048576;
 
         // Connected flag
         public bool connected = false;
@@ -280,7 +280,7 @@ namespace ARDrone.Input
             {
                 SocketPacket socketData = (SocketPacket)asyn.AsyncState;
 
-                int tempCMD = 0;
+                /*int tempCMD = 0;
 
                 int iRx = 0;
                 // Complete the BeginReceive() asynchronous call by EndReceive() method
@@ -291,75 +291,8 @@ namespace ARDrone.Input
                 System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
                 int charLen = d.GetChars(socketData.dataBuffer,
                                          0, iRx, chars, 0);
-                System.String szData = new System.String(chars);
+                System.String szData = new System.String(chars);*/
                 //richTextBoxReceivedMsg.AppendText(szData);
-                /*
-                try
-                {
-                    if (szData.Contains("{"))
-                    {
-                        // Save calibration data
-                        this.CalibrationData = new GestureData(JObject.Parse(szData));
-
-                        if (this.CalibrationData.valid)
-                        {
-                            tempCMD = 17;
-
-                            MessageBox.Show(this.CalibrationData.ToString());
-                        }
-                        else
-                        {
-                            // Send a hover command
-                            tempCMD = 0;
-
-                            MessageBox.Show(szData);
-                        }
-                    }
-                    else
-                    {
-                        // Write the line to the console
-                        System.Diagnostics.Debug.WriteLine(szData + "\n");
-
-                        // Attempt to convert the command
-                        tempCMD = Convert.ToInt32(szData);
-                    }
-                }
-                catch (FormatException e)
-                {
-                    CurrentCommand = Commands.None;
-
-                    // TODO: Try to interpret CAVE Calibration data?
-                }
-                catch (OverflowException e)
-                {
-                    CurrentCommand = Commands.None;
-                }
-                finally
-                {
-                    if (tempCMD < Int32.MaxValue)
-                    {
-                        if (tempCMD == (int)Commands.CalibrationComplete)
-                        {
-                            CAVECalibrated = true;
-
-                            MessageBox.Show("CAVE Calibrated!");
-                        }
-                        else
-                            if (CAVECalibrated)
-                            {
-                                CurrentCommand = ((Commands)tempCMD);
-                                
-                                commandResetTimer.Enabled = true;
-                            }
-                    }
-                    else
-                    {
-                        CurrentCommand = Commands.None;
-                    }
-                }
-                */
-                // TODO
-                //updateStatus();
 
                 // Continue the waiting for data on the Socket
                 WaitForData(socketData.m_currentSocket);
@@ -382,7 +315,7 @@ namespace ARDrone.Input
 
             using (MemoryStream stream = new MemoryStream())
             {
-                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                image.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
                 stream.Close();
 
                 imageBytes = stream.ToArray();
@@ -393,13 +326,16 @@ namespace ARDrone.Input
                 if (m_workerSocket != null)
                 {
                     foreach(Socket s in m_workerSocket)
-                        if(s != null)
+                        if (s != null)
+                        {
                             s.Send(imageBytes);
+                            System.Diagnostics.Debugger.Log(0, "1", "\nData Sent!\n");
+                        }
                 }
             }
             catch (SocketException se)
             {
-                System.Diagnostics.Debugger.Log(0, "1", "\nOnDataReceived: Something really bad happened!!!\n");
+                System.Diagnostics.Debugger.Log(0, "1", "\nOnDataSend: Something really bad happened!!!\n");
             }
         }
 
