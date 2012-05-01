@@ -63,42 +63,114 @@ namespace ARDrone.Input
 
         public void getPatientByID(int id)
         {
-            try
-            {
-                MySqlDataReader rdr = null;
+             MySqlDataReader rdr = null;
 
                 string stm = @"SELECT 
-                                    `ID`, 
-                                    `FirstName`, 
-                                    `LastName`, 
-                                    `Date`, 
-                                    `CheckInOneTime`, 
-                                    `CheckInTwoTime`, 
-                                    `CheckInThreeTime`, 
-                                    `CheckInFourTime` 
-                                FROM 
-                                (
-                                    SELECT
-                                        `p`.`ID`, 
-                                        `p`.`FirstName`, 
-                                        `p`.`LastName`, 
-                                        `s`.`Date`, 
-                                        `s`.`CheckInOneTime`, 
-                                        `s`.`CheckInTwoTime`, 
-                                        `s`.`CheckInThreeTime`, 
-                                        `s`.`CheckInFourTime` 
-                                    FROM
-                                        `patients` p, 
-                                        `sessions` s 
-                                    WHERE 
-                                        `p`.`ID` = @ID 
-                                    AND 
-                                        `p`.`ID` = `s`.`patientID` 
-                                    ORDER BY 
-                                        `s`.`Date` DESC
-                                ) s
-                                LIMIT 1";
+                                `ID`, 
+                                `FirstName`, 
+                                `LastName`, 
+                                `Date`, 
+                                `CheckInOneTime`, 
+                                `CheckInTwoTime`, 
+                                `CheckInThreeTime`, 
+                                `CheckInFourTime` 
+                            FROM 
+                            (
+                                SELECT
+                                    `p`.`ID`, 
+                                    `p`.`FirstName`, 
+                                    `p`.`LastName`, 
+                                    `s`.`Date`, 
+                                    `s`.`CheckInOneTime`, 
+                                    `s`.`CheckInTwoTime`, 
+                                    `s`.`CheckInThreeTime`, 
+                                    `s`.`CheckInFourTime` 
+                                FROM
+                                    `patients` p, 
+                                    `sessions` s 
+                                WHERE 
+                                    `p`.`ID` = @ID 
+                                AND 
+                                    `p`.`ID` = `s`.`patientID` 
+                                ORDER BY 
+                                    `s`.`Date` DESC
+                            ) s
+                            LIMIT 1";
 
+            try
+            {
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = this.conn;
+                cmd.CommandText = stm;
+                cmd.Prepare();
+
+                cmd.Parameters.AddWithValue("@ID", id);
+                rdr = cmd.ExecuteReader();
+
+                Patient p = null;
+
+                if (rdr.Read())
+                {
+                    p = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
+                }
+
+                // Close the reader
+                rdr.Close();
+
+                if(p != null)
+                {
+                    p.LastSession = this.getLastSession(id);                
+
+                    this.currentPatient = p;
+                    this.savingPatient = p;
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.ToString());
+                rdr.Close();
+                //return null;
+            }
+        }
+
+        public Session getLastSession(int id)
+        {
+            MySqlDataReader rdr = null;
+
+            string stm = @"SELECT 
+                                `ID`, 
+                                `FirstName`, 
+                                `LastName`, 
+                                `Date`, 
+                                `CheckInOneTime`, 
+                                `CheckInTwoTime`, 
+                                `CheckInThreeTime`, 
+                                `CheckInFourTime` 
+                            FROM 
+                            (
+                                SELECT
+                                    `p`.`ID`, 
+                                    `p`.`FirstName`, 
+                                    `p`.`LastName`, 
+                                    `s`.`Date`, 
+                                    `s`.`CheckInOneTime`, 
+                                    `s`.`CheckInTwoTime`, 
+                                    `s`.`CheckInThreeTime`, 
+                                    `s`.`CheckInFourTime` 
+                                FROM
+                                    `patients` p, 
+                                    `sessions` s 
+                                WHERE 
+                                    `p`.`ID` = @ID 
+                                AND 
+                                    `p`.`ID` = `s`.`patientID` 
+                                ORDER BY 
+                                    `s`.`Date` DESC
+                            ) s
+                            LIMIT 1";
+
+            try
+            {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = this.conn;
                 cmd.CommandText = stm;
@@ -110,21 +182,20 @@ namespace ARDrone.Input
                 if (rdr.Read())
                 {
                     Session s = new Session(rdr.GetString(3), rdr.GetString(4), rdr.GetString(5), rdr.GetString(6), rdr.GetString(7));
-
-                    this.currentPatient = new Patient(rdr.GetInt32(0), rdr.GetString(1), rdr.GetString(2), s);
-                    this.savingPatient = this.currentPatient;
+                    rdr.Close();
+                    return s;
                 }
-
-                // Close the reader
-                rdr.Close();
-
-                //return 
+                else
+                {
+                    rdr.Close();
+                    return new Session("2012-01-01 00:00:00", "00:00", "00:00", "00:00", "00:00");
+                }
             }
             catch (MySqlException ex)
             {
                 Console.WriteLine("Error: {0}", ex.ToString());
-
-                //return null;
+                rdr.Close();
+                return new Session("2012-01-01 00:00:00", "00:00", "00:00", "00:00", "00:00");
             }
         }
 
@@ -178,6 +249,43 @@ namespace ARDrone.Input
             catch (MySqlException e)
             {
                 return false;
+            }
+        }
+
+        public int reserveVideo()
+        {
+            try
+            {
+                MySqlDataReader rdr = null;
+
+                string stm = @"INSERT INTO
+                                    `recordings`
+                                (
+                                    `patientID`
+                                )
+                                VALUES
+                                (
+                                    @pid
+                                );
+                                SELECT LAST_INSERT_ID()";
+
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = this.conn;
+                cmd.CommandText = stm;
+                cmd.Prepare();
+
+                cmd.Parameters.AddWithValue("@pid", currentPatient.ID);
+                rdr = cmd.ExecuteReader();
+
+                if (rdr != null && rdr.Read())
+                  return rdr.GetInt32(0);
+
+                // Close the reader
+                rdr.Close();
+            }
+            catch (MySqlException e)
+            {
+                return -1;
             }
         }
 
@@ -252,6 +360,8 @@ namespace ARDrone.Input
                 return results;
             }
         }
+
+        public 
 
         protected override InputMappings.InputMapping GetStandardMapping()
         {

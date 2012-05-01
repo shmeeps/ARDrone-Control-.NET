@@ -682,7 +682,14 @@ namespace ARDrone.UI
 
             if (!CanCaptureVideo || videoRecorder.IsVideoCaptureRunning) { return; }
 
-            String videoFilePath = ShowFileDialog(".avi", "Video files (.avi)|*.avi");
+            if (Input.InputManager.DatabaseController == null) { return; }
+
+            if (Input.InputManager.DatabaseController.currentPatient == null) { return; }
+
+            int vidId = Input.InputManager.DatabaseController.reserveVideo();
+            String videoFilePath = System.Windows.Forms.Application.StartupPath + "\\Videos\\" + vidId + ".avi";
+
+            //String videoFilePath = ShowFileDialog(".avi", "Video files (.avi)|*.avi");
             if (videoFilePath == null) { return; }
 
             System.Drawing.Size size;
@@ -1137,6 +1144,7 @@ namespace ARDrone.UI
                 ARDrone.Input.InputManager.CheckInController.processCheckInEvents = true;
                 ARDrone.Input.InputManager.CheckInController.Stopwatch.Start();
                 timerCheckInUpdate.Start();
+                StartVideoCapture();
                 UpdateUIAsync("Check In System Started");
             }
         }
@@ -1150,6 +1158,7 @@ namespace ARDrone.UI
                 ARDrone.Input.InputManager.CheckInController.Stopwatch.Reset();
                 timerCheckInUpdate.Stop();
                 Input.InputManager.CheckInController.CompletedCheckIns.Clear();
+                EndVideoCapture();
                 UpdateUIAsync("Check In System Stopped");
             }
         }

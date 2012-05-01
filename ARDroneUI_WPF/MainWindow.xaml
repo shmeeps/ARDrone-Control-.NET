@@ -215,7 +215,7 @@
                     <GroupBox Header="Video &amp; Snapshots" >
                         <StackPanel>
                             <Button Name="buttonSnapshot" Content="Take a Snapshot" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Top" Click="buttonSnapshot_Click" Margin="5" />
-                            <CheckBox Name="checkBoxVideoCompress" Content="Compress video" Margin="5,0,0,0" />
+                            <CheckBox Name="checkBoxVideoCompress" Content="Compress video" Margin="5,0,0,0" IsChecked="True" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
