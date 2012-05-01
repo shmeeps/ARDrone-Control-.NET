@@ -390,7 +390,6 @@ namespace ARDrone.Input
 
             try
             {
-                // byte[] byData = System.Text.Encoding.ASCII.GetBytes(temp);
                 if (m_workerSocket != null)
                 {
                     foreach(Socket s in m_workerSocket)
