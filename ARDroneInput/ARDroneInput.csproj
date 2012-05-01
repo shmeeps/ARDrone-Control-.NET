@@ -90,6 +90,7 @@
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpeechInput.cs" />
+    <Compile Include="VideoController.cs" />
     <Compile Include="WiiMoteInput.cs" />
   </ItemGroup>
   <ItemGroup>

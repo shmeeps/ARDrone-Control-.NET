@@ -1,70 +1,23 @@
-﻿/* ARDrone Control .NET - An application for flying the Parrot AR drone in Windows.
- * Copyright (C) 2010, 2011 Thomas Endres, Stephen Hobley, Julien Vinel
- * 
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
- */
-
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Linq;
 using System.Text;
-using Microsoft.DirectX.DirectInput;
-using ARDrone.Input.InputMappings;
 using System.Net.Sockets;
+using ARDrone.Input.InputMappings;
 using System.Net;
-using System.Collections.ObjectModel;
-using System.Windows.Forms;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.Globalization;
-using System.Timers;
+using System.Windows;
+using ARDrone.Input.Utils;
+using System.Drawing;
+using System.IO;
 
 namespace ARDrone.Input
 {
-    public class CAVEDirectInput : DirectInputInput
+    public class VideoController : DirectInputInput
     {
         public enum Axis
         {
             // "Normal" axes
             Axis_X, Axis_Y, Axis_Z,
-        }
-
-        public enum Commands
-        {
-            None = 0,
-            Forward = 1,
-            Backward = 2,
-            Left = 3,
-            Right = 4,
-            Up = 5,
-            Down = 6,
-            FlatTrim = 7,
-            TakeOff = 8,
-            Land = 9,
-            Emergency = 10,
-            StrafeL = 11,
-            StrafeR = 12,
-            Camera = 13,
-            Special = 14,
-            Hover = 15,
-            Calibrate = 16,
-            CalibrationComplete = 17,
-            ControlToPatient = 18,
-            ControlToSupervisor = 19,
-            CheckInToggle = 20,
-            SelectPatient = 21,
-            SavePatient = 22,
-            ViewLogs = 23,
-            ViewRecordings = 24,
-            StartSimulation = 25,
-            EndSimulation = 26,
-            PauseSimulation = 27,
-            Exit = 28
         }
 
         // SOCKET STUFF
@@ -76,24 +29,14 @@ namespace ARDrone.Input
         private int m_clientCount = 0;
         static int m_bufferSize = 1024;
 
-        System.Timers.Timer commandResetTimer;
-
         // Connected flag
         public bool connected = false;
-
-        // See if the CAVE is calibrated
-        public bool CAVECalibrated = false;
-        
-        // Calibration data
-        public GestureData CalibrationData = null;
 
         // IP Settings
         public String m_IPAddress = "127.0.0.1";
 
         // Ports
-        public String m_Port = "8008";        
-
-        Commands CurrentCommand = Commands.None;
+        public String m_Port = "8006";        
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {
@@ -103,11 +46,11 @@ namespace ARDrone.Input
 
             foreach (GenericInput g in inputDevices)
             {
-                if (g.DeviceInstanceId == "CAVE")
+                if (g.DeviceInstanceId == "PATIENT")
                     return newDevices;
             }
 
-            CAVEDirectInput input = new CAVEDirectInput();
+            VideoController input = new VideoController();
 
             if (input.connected == true)
                 newDevices.Add(input);
@@ -115,10 +58,10 @@ namespace ARDrone.Input
             return newDevices;
         }
 
-        public CAVEDirectInput()
+        public VideoController()
             : base()
         {
-            InitCAVEInput();
+            InitPatientDisplay();
 
             DetermineMapping();
         }
@@ -130,24 +73,15 @@ namespace ARDrone.Input
             //mapping.SetAxisMappings("A-D", "W-S", "LeftArrow-Right", "DownArrow-Up");
             //mapping.SetButtonMappings("C", "Return", "Return", "NumPad0", "Space", "F", "X");
 
-            mapping.SetAxisMappings("StrafeL-StrafeR", "Forward-Backward", "Left-Right", "Down-Up");
-            mapping.SetButtonMappings(Commands.Camera, Commands.TakeOff, Commands.Land, Commands.Hover, Commands.Emergency, Commands.FlatTrim, Commands.Special);
+            //mapping.SetAxisMappings("StrafeL-StrafeR", "Forward-Backward", "Left-Right", "Down-Up");
+            //mapping.SetButtonMappings(Commands.Camera, Commands.TakeOff, Commands.Land, Commands.Hover, Commands.Emergency, Commands.FlatTrim, Commands.Special);
 
             return mapping;
         }
 
         private List<String> GetValidButtons()
         {
-            List<String> validButtons = new List<String>();
-            foreach (Commands key in Enum.GetValues(typeof(Commands)))
-            {
-                if (!validButtons.Contains(key.ToString()))
-                {
-                    validButtons.Add(key.ToString());
-                }
-            }
-
-            return validButtons;
+            return new List<String>();
         }
 
         private List<String> GetValidAxes()
@@ -155,32 +89,60 @@ namespace ARDrone.Input
             return new List<String>();
         }
 
-        public override List<String> GetPressedButtons()
+        public override List<string> GetPressedButtons()
         {
-            List<String> buttonsPressed = new List<String>();
-
-            if (InputManager.ActiveInput == InputManager.Inputs.Patient)
-            {
-                if (CurrentCommand == Commands.CalibrationComplete)
-                    CAVECalibrated = true;
-
-                else if (CurrentCommand != Commands.None)
-                    if (CAVECalibrated)
-                        buttonsPressed.Add(CurrentCommand.ToString());
-            }
-
-            return buttonsPressed;
+            return new List<String>();
         }
 
-        public override Dictionary<String, float> GetAxisValues()
+        public override Dictionary<string, float> GetAxisValues()
         {
             return new Dictionary<String, float>();
+        }
+
+        public override InputState GetCurrentControlInput()
+        {
+            List<String> buttonsPressed = GetPressedButtons();
+            Dictionary<String, float> axisValues = GetAxisValues();
+
+            //if (buttonsPressed.Contains("")) { buttonsPressed.Remove(""); }
+            //if (axisValues.ContainsKey("")) { axisValues.Remove(""); }
+
+            float roll = 0;
+            float pitch = 0;
+            float yaw = 0;
+            float gaz = 0;
+
+            bool cameraSwap = false;
+            bool takeOff = false;
+            bool land = false;
+            bool hover = false;
+            bool emergency = false;
+
+            bool flatTrim = false;
+
+            bool specialAction = false;
+
+            // TODO: test
+            //SetButtonsPressedBefore(buttonsPressed);
+
+            if (roll != lastInputState.Roll || pitch != lastInputState.Pitch || yaw != lastInputState.Yaw || gaz != lastInputState.Gaz || cameraSwap != lastInputState.CameraSwap || takeOff != lastInputState.TakeOff ||
+                land != lastInputState.Land || hover != lastInputState.Hover || emergency != lastInputState.Emergency || flatTrim != lastInputState.FlatTrim)
+            {
+                InputState newInputState = new InputState(roll, pitch, yaw, gaz, cameraSwap, takeOff, land, hover, emergency, flatTrim, specialAction);
+                lastInputState = newInputState;
+                return newInputState;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override bool IsDevicePresent
         {
             get
             {
+                //return m_mainSocket.Connected;
                 // TODO: Make sure socket is still open
                 return true;
             }
@@ -191,7 +153,7 @@ namespace ARDrone.Input
             get
             {
                 if (connected == false) { return string.Empty; }
-                else { return "CAVE System"; }
+                else { return "Patient Display"; }
             }
         }
 
@@ -200,7 +162,7 @@ namespace ARDrone.Input
             get
             {
                 if (connected == false) { return string.Empty; }
-                else { return "CS"; }
+                else { return "PD"; }
             }
         }
 
@@ -208,11 +170,11 @@ namespace ARDrone.Input
         {
             get
             {
-                return "CAVE";
+                return "PATIENT";
             }
         }
 
-        private void InitCAVEInput()
+        private void InitPatientDisplay()
         {
             try
             {
@@ -228,11 +190,6 @@ namespace ARDrone.Input
                 m_mainSocket.Listen(4);
                 // Create the call back for any client connections...
                 m_mainSocket.BeginAccept(new AsyncCallback(OnClientConnect), null);
-
-                // Set up reset timer
-                commandResetTimer = new System.Timers.Timer(250);
-                commandResetTimer.Elapsed += new ElapsedEventHandler(commandResetTimer_Elapsed);
-                commandResetTimer.AutoReset = true;
 
                 this.connected = true;
             }
@@ -266,7 +223,7 @@ namespace ARDrone.Input
                 // other clients who are attempting to connect
                 m_mainSocket.BeginAccept(new AsyncCallback(OnClientConnect), null);
 
-                MessageBox.Show("CAVE Controller Connected");
+                MessageBox.Show("Patient Display Connected");
             }
             catch (ObjectDisposedException)
             {
@@ -283,7 +240,7 @@ namespace ARDrone.Input
         public class SocketPacket
         {
             public System.Net.Sockets.Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[CAVEDirectInput.m_bufferSize];
+            public byte[] dataBuffer = new byte[VideoController.m_bufferSize];
         }
 
         // Start waiting for data from the client
@@ -336,7 +293,7 @@ namespace ARDrone.Input
                                          0, iRx, chars, 0);
                 System.String szData = new System.String(chars);
                 //richTextBoxReceivedMsg.AppendText(szData);
-
+                /*
                 try
                 {
                     if (szData.Contains("{"))
@@ -400,7 +357,7 @@ namespace ARDrone.Input
                         CurrentCommand = Commands.None;
                     }
                 }
-
+                */
                 // TODO
                 //updateStatus();
 
@@ -418,16 +375,27 @@ namespace ARDrone.Input
         }
 
         // Sends a command
-        public void SendCommand(Commands cmd)
+        public void SendImage(System.Drawing.Image image)
         {
+            // Byte data to store the image in
+            byte[] imageBytes = new byte[0];
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                stream.Close();
+
+                imageBytes = stream.ToArray();
+            }
+
             try
             {
-                byte[] byData = System.Text.Encoding.ASCII.GetBytes(((int)cmd).ToString());
+                // byte[] byData = System.Text.Encoding.ASCII.GetBytes(temp);
                 if (m_workerSocket != null)
                 {
                     foreach(Socket s in m_workerSocket)
                         if(s != null)
-                            s.Send(byData);
+                            s.Send(imageBytes);
                 }
             }
             catch (SocketException se)
@@ -439,169 +407,6 @@ namespace ARDrone.Input
         public override void Dispose()
         {
             m_mainSocket.Close();
-        }
-
-        void commandResetTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            this.CurrentCommand = Commands.None;
-            //commandResetTimer.Enabled = false;
-        }
-    }
-
-    public class Vec3
-    {
-        public double X;
-        public double Y;
-        public double Z;
-
-        public Vec3(double x, double y, double z)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-        }
-
-        public Vec3(Vec3 v)
-        {
-            this.X = v.X;
-            this.Y = v.Y;
-            this.Z = v.Z;
-        }
-
-        public Vec3(string x, string y, string z)
-        {
-            this.X = this.stringToDouble(x);
-            this.Y = this.stringToDouble(y);
-            this.Z = this.stringToDouble(z);
-        }
-
-        public double stringToDouble(string s)
-        {
-            try
-            {
-                return double.Parse(s);
-            }
-            catch (FormatException e)
-            {
-                MessageBox.Show("FormatException");
-                return 0;
-            }
-            catch (OverflowException e)
-            {
-                MessageBox.Show("OverflowException");
-                return 0;
-            }
-        }
-
-        public override String ToString()
-        {
-            return "{" + this.X.ToString() + ", "
-                       + this.Y.ToString() + ", "
-                       + this.Z.ToString() + "}";
-        }
-    }
-
-    public class GestureData
-    {
-        public Dictionary<String, Gesture> Gestures = new Dictionary<String, Gesture>();
-        public Boolean valid = false;
-
-        public GestureData(JObject o)
-        {
-            try
-            {
-
-                // Get up gesture
-                Gestures.Add("Up", new Gesture("Up",
-                                         new Vec3((string)o["Up"]["lsx"],
-                                                  (string)o["Up"]["lsy"],
-                                                  (string)o["Up"]["lsz"]),
-                                         new Vec3((string)o["Up"]["rsx"],
-                                                  (string)o["Up"]["rsy"],
-                                                  (string)o["Up"]["rsz"])));
-
-                // Get down gesture
-                Gestures.Add("Down", new Gesture("Down",
-                                         new Vec3((string)o["Down"]["lsx"],
-                                                  (string)o["Down"]["lsy"],
-                                                  (string)o["Down"]["lsz"]),
-                                         new Vec3((string)o["Down"]["rsx"],
-                                                  (string)o["Down"]["rsy"],
-                                                  (string)o["Down"]["rsz"])));
-
-                // Get up gesture
-                Gestures.Add("Left", new Gesture("Left",
-                                         new Vec3((string)o["Left"]["lsx"],
-                                                  (string)o["Left"]["lsy"],
-                                                  (string)o["Left"]["lsz"]),
-                                         new Vec3((string)o["Left"]["rsx"],
-                                                  (string)o["Left"]["rsy"],
-                                                  (string)o["Left"]["rsz"])));
-
-                // Get up gesture
-                Gestures.Add("Right", new Gesture("Right",
-                                         new Vec3((string)o["Right"]["lsx"],
-                                                  (string)o["Right"]["lsy"],
-                                                  (string)o["Right"]["lsz"]),
-                                         new Vec3((string)o["Right"]["rsx"],
-                                                  (string)o["Right"]["rsy"],
-                                                  (string)o["Right"]["rsz"])));
-
-                // Get up gesture
-                Gestures.Add("Forward", new Gesture("Forward",
-                                         new Vec3((string)o["Forward"]["lsx"],
-                                                  (string)o["Forward"]["lsy"],
-                                                  (string)o["Forward"]["lsz"]),
-                                         new Vec3((string)o["Forward"]["rsx"],
-                                                  (string)o["Forward"]["rsy"],
-                                                  (string)o["Forward"]["rsz"])));
-
-                // Get up gesture
-                Gestures.Add("Back", new Gesture("Back",
-                                         new Vec3((string)o["Back"]["lsx"],
-                                                  (string)o["Back"]["lsy"],
-                                                  (string)o["Back"]["lsz"]),
-                                         new Vec3((string)o["Back"]["rsx"],
-                                                  (string)o["Back"]["rsy"],
-                                                  (string)o["Back"]["rsz"])));
-
-                valid = true;
-            }
-            catch (JsonReaderException e)
-            {
-                valid = false;
-            }
-        }
-
-        public override String ToString()
-        {
-            String workString = "";
-
-            foreach (Gesture g in Gestures.Values)
-            {
-                workString += g.ToString() + "\n";
-            }
-
-            return workString;
-        }
-    }
-
-    public class Gesture
-    {
-        public String GestureName;
-        public Vec3 LeftHand;
-        public Vec3 RightHand;
-
-        public Gesture(String s, Vec3 l, Vec3 r)
-        {
-            this.GestureName = s;
-            this.LeftHand = l;
-            this.RightHand = r;
-        }
-
-        public override String ToString()
-        {
-            return this.GestureName + ": " + this.LeftHand.ToString() + ", " + this.RightHand.ToString();
         }
     }
 }

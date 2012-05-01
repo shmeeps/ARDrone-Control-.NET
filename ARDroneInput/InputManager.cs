@@ -28,6 +28,7 @@ namespace ARDrone.Input
         public static CAVEDirectInput CAVEInput = null;
         public static CheckInController CheckInController = null;
         public static DatabaseController DatabaseController = null;
+        public static VideoController VideoController = null;
 
         private IntPtr windowHandle;
         private List<GenericInput> inputDevices = null;
@@ -135,6 +136,7 @@ namespace ARDrone.Input
             newDevices.AddRange(CAVEDirectInput.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(CheckInController.GetNewInputDevices(windowHandle, inputDevices));
             newDevices.AddRange(DatabaseController.GetNewInputDevices(windowHandle, inputDevices));
+            newDevices.AddRange(VideoController.GetNewInputDevices(windowHandle, inputDevices));
 
             foreach (GenericInput inputDevice in newDevices)
             {
@@ -155,6 +157,9 @@ namespace ARDrone.Input
 
             if (input.GetType() == typeof(DatabaseController))
                 InputManager.DatabaseController = (DatabaseController)input;
+
+            if (input.GetType() == typeof(VideoController))
+                InputManager.VideoController = (VideoController)input;
 
             if (input.GetType() == typeof(KeyboardInput))
                 typeToSearchFor = typeof(JoystickInput);

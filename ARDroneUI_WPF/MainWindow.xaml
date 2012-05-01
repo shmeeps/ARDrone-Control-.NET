@@ -114,7 +114,7 @@
                                 <TextBox Name="oldTimeTotal" Grid.Column="1" Grid.Row="3" Margin="5" Grid.ColumnSpan="2" />
                                 
                                 <Button Name="buttonSelectPatient" Content="Select Patient" Grid.Column="0" Grid.Row="4" Margin="5" Grid.ColumnSpan="2" Click="buttonSelectPatient_Click" />
-                                <Button Name="buttonSavePatient" Content="Save Patient Session" Grid.Column="2" Grid.Row="4" Margin="5" Grid.ColumnSpan="2" />
+                                <Button Name="buttonSavePatient" Content="Save Patient Session" Grid.Column="2" Grid.Row="4" Margin="5" Grid.ColumnSpan="2" Click="buttonSavePatient_Click" />
                             </Grid>
                         </GroupBox>
                     </DockPanel>

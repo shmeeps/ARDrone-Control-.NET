@@ -31,6 +31,7 @@ using ARDrone.Input.Utils;
 using ARDrone.Control.Commands;
 using ARDrone.Control.Data;
 using ARDrone.Control.Events;
+using System.Drawing;
 
 namespace ARDrone.UI
 {
@@ -624,10 +625,12 @@ namespace ARDrone.UI
 
         private void SetNewVideoImage()
         {
+            // TODO: Send video data here
+
             if (droneControl.IsConnected)
             {
                 System.Drawing.Image image = droneControl.BitmapImage;
-
+                
                 if (image != null)
                 {
                     frameCountSinceLastCapture++;
@@ -635,6 +638,11 @@ namespace ARDrone.UI
                     if (videoRecorder.IsVideoCaptureRunning)
                     {
                         videoRecorder.AddFrame((System.Drawing.Bitmap)image.Clone());
+                    }
+
+                    if (Input.InputManager.VideoController != null)
+                    {
+                        Input.InputManager.VideoController.SendImage(image);
                     }
                 }
 
@@ -790,10 +798,8 @@ namespace ARDrone.UI
             // Make sure a database controller is connected
             if (Input.InputManager.DatabaseController != null)
             {
-                
                 if (Input.InputManager.DatabaseController.currentPatient != null)
                 {
-                    
                     // TODO: Update patient session GUI data
                     this.patientName.Text = Input.InputManager.DatabaseController.currentPatient.FirstName + " " + Input.InputManager.DatabaseController.currentPatient.LastName;
                     this.oldTimeOne.Text = Input.InputManager.DatabaseController.currentPatient.LastSession.Time1;
@@ -1180,6 +1186,19 @@ namespace ARDrone.UI
             patientSettings.ShowDialog();
         }
 
+        public void SavePatient()
+        {
+            // Make sure a database controller is connected
+            if (Input.InputManager.DatabaseController != null)
+            {
+                if (Input.InputManager.DatabaseController.savingPatient != null)
+                {
+                    if (Input.InputManager.DatabaseController.UpdatePatient())
+                        UpdateUIAsync("Session saved!");
+                }
+            }
+        }
+
         private void startCheckIn_Click(object sender, RoutedEventArgs e)
         {
             StartCheckInSystem();
@@ -1203,6 +1222,11 @@ namespace ARDrone.UI
         private void buttonSelectPatient_Click(object sender, RoutedEventArgs e)
         {
             LoadPatient();
+        }
+
+        private void buttonSavePatient_Click(object sender, RoutedEventArgs e)
+        {
+            SavePatient();
         }
     }
 }
