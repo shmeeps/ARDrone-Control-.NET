@@ -27,7 +27,7 @@ namespace ARDrone.Input
         private Socket m_mainSocket;
         private Socket[] m_workerSocket = new Socket[10];
         private int m_clientCount = 0;
-        static int m_bufferSize = 1048576;
+        static int m_bufferSize = 16;
 
         // Connected flag
         public bool connected = false;
@@ -36,7 +36,10 @@ namespace ARDrone.Input
         public String m_IPAddress = "127.0.0.1";
 
         // Ports
-        public String m_Port = "8006";        
+        public String m_Port = "8006";
+
+        public static bool sending = false;
+        public static string file = "front";
 
         public static List<GenericInput> GetNewInputDevices(IntPtr windowHandle, List<GenericInput> currentDevices)
         {
@@ -310,38 +313,68 @@ namespace ARDrone.Input
         // Sends a command
         public void SendImage(System.Drawing.Image image)
         {
+            // Make sure we aren't trying to send an image right now
+            if (VideoController.sending)
+                return;
+            else
+                VideoController.sending = true;
+
+            try
+            {
+                image.Save(System.Windows.Forms.Application.StartupPath + "\\VideoStream\\" + VideoController.file + ".bmp");
+            }
+            catch (System.ArgumentException e)
+            {
+                VideoController.sending = false;
+            }
+            
             // Byte data to store the image in
-            byte[] imageBytes = new byte[0];
+            /*byte[] imageBytes = new byte[0];
 
             using (MemoryStream stream = new MemoryStream())
             {
-                image.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                image.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
                 stream.Close();
 
                 imageBytes = stream.ToArray();
-            }
+            }*/
+
+            image.Dispose();
 
             try
             {
                 if (m_workerSocket != null)
                 {
+                    byte[] imageBytes = System.Text.Encoding.ASCII.GetBytes(VideoController.file);
                     foreach(Socket s in m_workerSocket)
                         if (s != null)
                         {
                             s.Send(imageBytes);
-                            System.Diagnostics.Debugger.Log(0, "1", "\nData Sent!\n");
+                            //System.Diagnostics.Debugger.Log(0, "1", "\nData Sent!\n");
                         }
                 }
+
+                //System.Diagnostics.Debugger.Log(0, "1", "\nData Transmission Complete!\n");
+                VideoController.sending = false;
+                
+                if(VideoController.file == "front")
+                    VideoController.file = "back";
+                else
+                    VideoController.file = "front";
             }
             catch (SocketException se)
             {
                 System.Diagnostics.Debugger.Log(0, "1", "\nOnDataSend: Something really bad happened!!!\n");
+                VideoController.sending = false;
             }
+            
+
+
         }
 
         public override void Dispose()
         {
-            m_mainSocket.Close();
+            //m_mainSocket.Close();
         }
     }
 }

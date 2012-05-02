@@ -438,7 +438,7 @@ namespace ARDrone.Input
 
         public override void Dispose()
         {
-            m_mainSocket.Close();
+            //m_mainSocket.Close();
         }
 
         void commandResetTimer_Elapsed(object sender, ElapsedEventArgs e)
