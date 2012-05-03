@@ -1165,28 +1165,34 @@ namespace ARDrone.UI
 
         public void PatientToSupervisor()
         {
-            // Adjust form
-            this.buttonCommandPatientToSupervisor.IsChecked = true;
-            this.buttonCommandSupervisorToPatient.IsChecked = false;
+            if (this.buttonCommandPatientToSupervisor.IsChecked != true)
+            {
+                // Adjust form
+                this.buttonCommandPatientToSupervisor.IsChecked = true;
+                this.buttonCommandSupervisorToPatient.IsChecked = false;
 
-            // Set command
-            Input.InputManager.ActiveInput = Input.InputManager.Inputs.Supervisor;
+                // Set command
+                Input.InputManager.ActiveInput = Input.InputManager.Inputs.Supervisor;
 
-            // Notify Admin
-            UpdateUIAsync("Control given to Supervisor");
+                // Notify Admin
+                UpdateUIAsync("Control given to Supervisor");
+            }
         }
 
         public void SupervisorToPatient()
         {
-            // Adjust form
-            this.buttonCommandPatientToSupervisor.IsChecked = false;
-            this.buttonCommandSupervisorToPatient.IsChecked = true;
+            if (this.buttonCommandSupervisorToPatient.IsChecked != true)
+            {
+                // Adjust form
+                this.buttonCommandPatientToSupervisor.IsChecked = false;
+                this.buttonCommandSupervisorToPatient.IsChecked = true;
 
-            // Set command
-            Input.InputManager.ActiveInput = Input.InputManager.Inputs.Patient;
+                // Set command
+                Input.InputManager.ActiveInput = Input.InputManager.Inputs.Patient;
 
-            // Notify Admin
-            UpdateUIAsync("Control given to Patient");
+                // Notify Admin
+                UpdateUIAsync("Control given to Patient");
+            }
         }
 
         public void LoadPatient()

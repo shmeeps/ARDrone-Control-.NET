@@ -9,6 +9,7 @@ using System.Windows;
 using ARDrone.Input.Utils;
 using System.Drawing;
 using System.IO;
+using System.Drawing.Imaging;
 
 namespace ARDrone.Input
 {
@@ -321,7 +322,11 @@ namespace ARDrone.Input
 
             try
             {
-                image.Save(System.Windows.Forms.Application.StartupPath + "\\VideoStream\\" + VideoController.file + ".bmp");
+                EncoderParameters encoderParameters = new EncoderParameters(1);
+                encoderParameters.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
+                image.Save(System.Windows.Forms.Application.StartupPath + "\\VideoStream\\" + VideoController.file + ".jpg", GetEncoder(ImageFormat.Jpeg), encoderParameters);
+
+                //image.Save(System.Windows.Forms.Application.StartupPath + "\\VideoStream\\" + VideoController.file + ".bmp");
             }
             catch (System.ArgumentException e)
             {
@@ -367,9 +372,20 @@ namespace ARDrone.Input
                 System.Diagnostics.Debugger.Log(0, "1", "\nOnDataSend: Something really bad happened!!!\n");
                 VideoController.sending = false;
             }
-            
+        }
 
+        public ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
 
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
         }
 
         public override void Dispose()
